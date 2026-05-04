@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Environment variables
+.env
+.env.*
+
+# Django
+*.log
+db.sqlite3
+db.sqlite3-journal
+
+# Static & media (if generated)
+staticfiles/
+media/
+
+# Migrations (optional: keep if you want versioned DB schema)
+# core/migrations/*
+# !core/migrations/__init__.py
+
+# VS Code
+.vscode/
+
+# macOS / Linux / Windows junk
+.DS_Store
+Thumbs.db
+*.swp
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+
+# Python version
+.python-version
+
+# Lock files (decide based on your workflow)
+uv.lock
+
+# Coverage / testing
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Misc
+*.sqlite3
