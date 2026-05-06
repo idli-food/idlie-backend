@@ -10,7 +10,7 @@ class User(models.Model):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     credibility_score = models.FloatField(default=0.5)
-    avatar_url = models.URLField()
+    avatar_url = models.URLField(blank=True,null=True)
     dob = models.DateField(null=True, blank=True)
     bio = models.TextField(blank=True)
     DIET_CHOICES = [

@@ -1,0 +1,44 @@
+
+
+
+from rest_framework import serializers
+from ..models import User
+
+class AddUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            'phone',
+            'username',
+            'first_name',
+            'last_name',
+            'credibility_score',
+            'avatar_url',
+            'dob',
+            'bio',
+            'diet',
+            'food_preference',
+            'created_at'
+        ]
+
+class UserResponseSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+
+        fields = [
+            "id",
+            "phone",
+            "username",
+            "first_name",
+            "last_name",
+            "credibility_score",
+            "avatar_url",
+            "dob",
+            "bio",
+            "diet",
+            "food_preference",
+            "created_at",
+        ]
+
+        read_only_fields = fields
