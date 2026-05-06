@@ -13,14 +13,9 @@ class AddUserView(APIView):
 
     def post(self, request):
 
-        print("here")
-
         try:
-            print(request.data)
             user = create_user(request.data)
-
             response_serializer = UserResponseSerializer(user)
-
             return Response(
                 {
                     "status": "success",
@@ -29,9 +24,7 @@ class AddUserView(APIView):
                 },
                 status=status.HTTP_201_CREATED
             )
-
         except ValidationError as e:
-
             return Response(
                 {
                     "status": "failed",
@@ -39,9 +32,7 @@ class AddUserView(APIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
-
         except Exception as e:
-
             return Response(
                 {
                     "status": "failed",
