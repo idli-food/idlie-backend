@@ -20,6 +20,7 @@ def get_upload_url(file_name, content_type):
     s3_client = boto3.client(
         "s3",
         region_name="ap-south-1",
+        endpoint_url="https://s3.ap-south-1.amazonaws.com",
         aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
         aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
         config=Config(signature_version="s3v4"),

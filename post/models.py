@@ -14,6 +14,7 @@ class Post(models.Model):
         PUBLISHED = 'published', 'Published'
         ARCHIVED = 'archived', 'Archived'
 
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -27,6 +28,7 @@ class Post(models.Model):
         blank=True,
         related_name='posts'
     )
+    foodspot_tag = models.CharField(blank=True,null=False)
 
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
@@ -39,6 +41,7 @@ class Post(models.Model):
     raw_s3_key = models.CharField(max_length=500)
     media_url = models.URLField()
     thumbnail_url = models.URLField(blank=True)
+    is_proccessed = models.BooleanField(default=False)
 
     status = models.CharField(
         max_length=10,
