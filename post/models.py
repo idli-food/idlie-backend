@@ -1,5 +1,8 @@
 from django.db import models
 from django.contrib.gis.db import models as gis_models
+from foodspot.models import FoodSpot
+from user.models import User
+
 
 class Post(models.Model):
     class MediaType(models.TextChoices):
@@ -12,13 +15,13 @@ class Post(models.Model):
         ARCHIVED = 'archived', 'Archived'
 
     user = models.ForeignKey(
-        'User',
+        User,
         on_delete=models.CASCADE,
         related_name='posts'
     )
 
     food_spot = models.ForeignKey(
-        'FoodSpot',
+        FoodSpot,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
