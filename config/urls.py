@@ -22,5 +22,7 @@ urlpatterns = [
     path('',include('core.urls')),
     path('user/',include('user.urls')),
     path('post/',include('post.urls')),
+    path('feed/',include('feed.urls')),
+
 
 ]
