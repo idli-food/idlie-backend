@@ -10,6 +10,8 @@ dependencies = [
     "django-storages>=1.14.6",
     "djangorestframework>=3.17.1",
     "djangorestframework-gis>=1.2.1",
+    "gunicorn>=26.0.0",
+    "psycopg2-binary>=2.9.12",
     "psycopg[binary]>=3.3.4",
     "python-dotenv>=1.2.2",
 ]
