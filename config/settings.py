@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'foodspot',
     'feed',
     'authentication',
+    'accounts',
 ]
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [

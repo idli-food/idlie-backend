@@ -24,6 +24,8 @@ urlpatterns = [
     path('post/',include('post.urls')),
     path('feed/',include('feed.urls')),
     path('auth/',include('authentication.urls')),
+    path('accounts/',include('accounts.urls')),
+
 
 
 
