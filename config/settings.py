@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'user',
     'foodspot',
     'feed',
+    'authentication',
 ]
 
 MIDDLEWARE = [
