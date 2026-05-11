@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from post.models import Post
-
+from ..services.fetch_media import get_pre_signed_url
 from user.models import User
 
 class FeedUserSerializer(serializers.ModelSerializer):
@@ -28,4 +28,19 @@ class FeedPostSerializer(serializers.ModelSerializer):
             "composite_score",
             "created_at",
         ]
+    
+    def get_media_url(self,obj):
 
+        if not obj.raw_s3_key:
+            return None
+        
+        
+        url = get_pre_signed_url(obj.raw_s3_key)
+
+        if not url: 
+            return None
+        return url
+    def get_thumbnail_url(self,obj):
+
+        url = None
+        return None

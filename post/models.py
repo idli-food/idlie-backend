@@ -39,8 +39,6 @@ class Post(models.Model):
     )
 
     raw_s3_key = models.CharField(max_length=500)
-    media_url = models.URLField()
-    thumbnail_url = models.URLField(blank=True)
     is_proccessed = models.BooleanField(default=False)
 
     status = models.CharField(
