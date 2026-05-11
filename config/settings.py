@@ -59,7 +59,11 @@ INSTALLED_APPS = [
     'feed',
     'authentication',
 ]
-
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "authentication.jwt.authentications.JWTAuthentication",
+    ]
+}
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

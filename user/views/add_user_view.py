@@ -7,6 +7,7 @@ from rest_framework.exceptions import ValidationError
 
 from ..serivices.add_user import create_user
 from ..serializers.user import UserResponseSerializer
+from authentication.jwt.jwt_utils import create_access_token, create_refresh_token
 
 
 class AddUserView(APIView):
@@ -16,17 +17,22 @@ class AddUserView(APIView):
         try:
             user = create_user(request.data)
             response_serializer = UserResponseSerializer(user)
+            print(response_serializer["id"])
+            access_token = create_access_token(response_serializer.data["id"])
+            refresh_token = create_refresh_token(response_serializer.data["id"])
             return Response(
                 {
                     "status": "success",
                     "message": "User created successfully",
-                    "data": response_serializer.data
+                    "data": response_serializer.data,
+                    "access" : access_token,
+                    "refresh" : refresh_token,
                 },
                 status=status.HTTP_201_CREATED
             )
         except ValidationError as e:
             return Response(
-                {
+                {   
                     "status": "failed",
                     "errors": e.detail
                 },

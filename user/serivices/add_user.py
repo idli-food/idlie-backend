@@ -5,7 +5,6 @@ from rest_framework.exceptions import ValidationError
 
 from ..serializers.user import AddUserSerializer
 
-
 def create_user(user_data: dict):
 
     print(user_data)
