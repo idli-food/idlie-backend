@@ -7,8 +7,8 @@ from django.db import models
 class User(models.Model):
     phone = models.CharField(max_length=15)
     username = models.CharField(max_length=100)
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
+    first_name = models.CharField(max_length=100,blank=True,null=True)
+    last_name = models.CharField(max_length=100,blank=True,null=True)
     credibility_score = models.FloatField(default=0.5)
     avatar_url = models.URLField(blank=True,null=True)
     dob = models.DateField(null=True, blank=True)
@@ -20,3 +20,4 @@ class User(models.Model):
     diet = models.CharField(max_length=20, choices=DIET_CHOICES, blank=True)
     food_preference = models.CharField(max_length=100, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    profile_status = models.BooleanField(default=False)
