@@ -14,6 +14,8 @@ class FeedUserSerializer(serializers.ModelSerializer):
 
 class FeedPostSerializer(serializers.ModelSerializer):
     user = FeedUserSerializer(read_only=True)
+    media_url = serializers.SerializerMethodField()
+    thumbnail_url = serializers.SerializerMethodField()
     class Meta:
         model = Post
         fields = [
