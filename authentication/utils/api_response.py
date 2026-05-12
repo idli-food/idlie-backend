@@ -7,13 +7,15 @@ def success_response(
     message="Success",
     data=None,
     code=status.HTTP_200_OK,
-    meta=None
+    meta=None,
+    request_id=None
 ):
     response = {
         "success": True,
         "message": message,
         "code": code,
         "data": data,
+        "request_id" : request_id,
         "meta": {
             "timestamp": now().isoformat(),
             "version": "1.0.0"

@@ -25,6 +25,6 @@ class SendOtpView(APIView):
 
         
         
-        return success_response(message="otp send",data=response["request_id"])
+        return success_response(message="otp send",request_id=response["request_id"])
 
         

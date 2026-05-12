@@ -13,16 +13,17 @@ class ValidateOTPView(APIView):
     def post(self,request):
 
         otp = request.data["otp"]
-        request_id = request.data["otp"]
+        request_id = request.data["request_id"]
 
         if not otp:
             return error_response(message="OTP not provided")
         
         response = OTPServices.validate_OTP(otp)
+        request_id = "re342r432"
         
         if not response :
             return error_response(message="Wrong OTP")
-        return success_response(message="OTP verfied") 
+        return success_response(message="OTP verfied",request_id=request_id) 
         
         
 

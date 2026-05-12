@@ -8,6 +8,5 @@ urlpatterns = [
     path("get-otp/", SendOtpView.as_view(),name="get phone number"),
     path("validate-otp/", ValidateOTPView.as_view(),name="get phone number"),
     path("refresh/",RefreshAccessToken.as_view(), name="get refresh token")
-
 ]
 
