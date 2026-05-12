@@ -1,9 +1,10 @@
 import jwt
-from django.conf import settings
-from django.contrib.auth.models import User
 
+from django.conf import settings
+from user.models import User
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
+
 
 
 class JWTAuthentication(BaseAuthentication):
@@ -33,5 +34,14 @@ class JWTAuthentication(BaseAuthentication):
 
             return (user, token)
 
-        except Exception:
-            raise AuthenticationFailed("Invalid or expired token")
+        except jwt.ExpiredSignatureError:
+            raise AuthenticationFailed("Token expired")
+
+        except jwt.DecodeError:
+            raise AuthenticationFailed("Invalid token")
+
+        except User.DoesNotExist:
+            raise AuthenticationFailed("User not found")
+
+        except Exception as e:
+            raise AuthenticationFailed(str(e))
