@@ -11,6 +11,7 @@ dependencies = [
     "djangorestframework>=3.17.1",
     "djangorestframework-gis>=1.2.1",
     "faker>=40.15.0",
+    "geopy>=2.4.1",
     "gunicorn>=26.0.0",
     "psycopg2-binary>=2.9.12",
     "psycopg[binary]>=3.3.4",

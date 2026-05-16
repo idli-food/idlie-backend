@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 
 from ..serializers.post_serializer import CreatePostSerializer
 from ..utils.api_response import (
@@ -10,6 +11,9 @@ from ..utils.api_response import (
 
 
 class CreatePostView(APIView):
+
+    permission_classes = [IsAuthenticated]
+    
 
     def post(self, request):
 
