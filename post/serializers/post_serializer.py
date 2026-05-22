@@ -24,5 +24,7 @@ class CreatePostSerializer(serializers.ModelSerializer):
             "location",
         ]
 
+
     def create(self, validated_data):
-        return Post.objects.create(**validated_data)
+        validated_data['user'] = self.context['request'].user
+        return super().create(validated_data)
