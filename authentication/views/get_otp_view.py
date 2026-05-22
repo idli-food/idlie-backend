@@ -2,7 +2,7 @@
 from rest_framework.views import APIView
 from ..service.OTPservices import OTPServices
 from ..service.ownership import is_phone_number_available
-from ..utils.api_response import success_response, error_response
+from core.utils.api_response import success_response, error_response
 from ..models import DevOTP
 class SendOtpView(APIView):
 

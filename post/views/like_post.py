@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 
 from ..serializers.post_like_serializer import PostLikeSerializer
-from ..utils.api_response import success_response, error_response
+from core.utils.api_response import success_response, error_response
 from ..services.post_validation import PostValidations
 
 

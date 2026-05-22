@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 import jwt
-from ..utils.api_response import success_response, error_response
+from core.utils.api_response import success_response, error_response
 
 from ..jwt.jwt_utils import create_access_token,decode_token
 

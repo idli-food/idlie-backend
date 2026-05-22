@@ -3,7 +3,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from ..services.signed_url import get_upload_url
-from ..utils.api_response import success_response, error_response
+from core.utils.api_response import success_response, error_response
 
 
 class GenerateUploadUrlView(APIView):
