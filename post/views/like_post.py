@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from ..serializers.post_like_serializer import PostLikeSerializer
 from core.utils.api_response import success_response, error_response
-from ..services.post_validation import PostValidations
+from ..services import post_service
 
 
 class LikePostView(APIView):
@@ -17,7 +17,7 @@ class LikePostView(APIView):
 
         try:
 
-            if PostValidations.check_post_availablity(post_id):
+            if post_service.check_post_availablity(post_id):
                 raise ValidationError("Post not available")
 
             serializer = PostLikeSerializer(data={
@@ -28,7 +28,7 @@ class LikePostView(APIView):
             serializer.is_valid(raise_exception=True)
 
             serializer.save()
-
+            post_service.update_post_like_count(post_id=post_id)
             return success_response(
                 message="Liked successfully",
                 code=status.HTTP_201_CREATED
