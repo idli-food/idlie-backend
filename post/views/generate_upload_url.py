@@ -13,10 +13,8 @@ class GenerateUploadUrlView(APIView):
     def post(self, request):
         file_name = request.data.get("file_name")
         content_type = request.data.get("content_type")
-
         try:
             url = get_upload_url(file_name, content_type)
-
             return success_response(
                 message="Upload URL generated successfully",
                 data={
