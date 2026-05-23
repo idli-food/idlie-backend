@@ -13,13 +13,13 @@ class OTPServices:
     @classmethod
     def generate_opt(cls,phone_number):
         return({
-            "otp" : 22118,
+            "otp" : 221180,
             "request_id" : 20
         })
     
     @classmethod
     def validate_OTP(cls,otp):
-        original_otp = "22118"
+        original_otp = "221180"
 
         if otp == original_otp:
             return True
