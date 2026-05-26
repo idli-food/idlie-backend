@@ -13,6 +13,7 @@ dependencies = [
     "faker>=40.15.0",
     "geopy>=2.4.1",
     "gunicorn>=26.0.0",
+    "pillow>=12.2.0",
     "psycopg2-binary>=2.9.12",
     "psycopg[binary]>=3.3.4",
     "pyjwt>=2.12.1",
