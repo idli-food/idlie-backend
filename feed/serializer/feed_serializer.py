@@ -27,6 +27,7 @@ class FeedPostSerializer(serializers.ModelSerializer):
             "thumbnail_url",
             "like_count",
             "avg_rating",
+            "media_type",
             "composite_score",
             "created_at",
         ]
