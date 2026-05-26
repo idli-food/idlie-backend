@@ -1,6 +1,7 @@
 from rest_framework_gis.fields import GeometryField
 from rest_framework import serializers
 from ..models import Post
+
 class CreatePostSerializer(serializers.ModelSerializer):
 
     location = GeometryField(required=False)
@@ -24,7 +25,23 @@ class CreatePostSerializer(serializers.ModelSerializer):
             "location",
         ]
 
+        read_only_fields = [
+            "user",
+            "media_url",
+            "like_count",
+            "avg_rating",
+            "rating_count",
+            "composite_score",
+        ]
 
     def create(self, validated_data):
-        validated_data['user'] = self.context['request'].user
+        validated_data["user"] = self.context["request"].user
         return super().create(validated_data)
+
+class PostProfilePageSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Post
+        fields = [
+            "thumbnail_url"
+        ]
