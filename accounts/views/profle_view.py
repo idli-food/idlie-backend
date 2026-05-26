@@ -11,14 +11,9 @@ class ProfileView(APIView):
 
     def get(self,request):
 
-        print(request.user)
-        serializer = ProfileViewSerializer(request.user)
+        serializer = ProfileViewSerializer(request.user.profile)
 
-        return Response({
-            "username" : request.user.username,
-            "data" : serializer.data
-            
-        })
+        return Response(serializer.data)
 
 
         

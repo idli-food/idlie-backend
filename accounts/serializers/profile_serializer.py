@@ -1,25 +1,27 @@
 from rest_framework import serializers
-from user.models import User
+from user.models import User,UserProfile
 from  post.serializers.post_serializer import PostProfilePageSerializer
+
 
 class ProfileViewSerializer(serializers.ModelSerializer):
 
+    username = serializers.CharField(source='user.username', read_only=True)
     total_post = serializers.SerializerMethodField()
     total_likes = serializers.SerializerMethodField()
     total_stars = serializers.SerializerMethodField()
     total_rating = serializers.SerializerMethodField()
     total_post = serializers.SerializerMethodField()
     posts = serializers.SerializerMethodField()
+    completion_percentage = serializers.ReadOnlyField()
+    incomplete_fields = serializers.ReadOnlyField()
+    is_profile_complete = serializers.ReadOnlyField()
 
     class Meta:
-        model = User
+        model = UserProfile
         fields = [
-            "id",
-            "phone",
             "username",
-            "first_name",
-            "last_name",
-            "avatar_url",
+            "name",
+            "avatar",
             "bio",
             "total_post",
             "total_likes",
@@ -28,6 +30,8 @@ class ProfileViewSerializer(serializers.ModelSerializer):
             "total_post",
             "posts",
             "is_verified",
+            'completion_percentage', 'incomplete_fields', 'is_profile_complete',
+            
         ]
         read_only_fields = fields
 
@@ -35,13 +39,13 @@ class ProfileViewSerializer(serializers.ModelSerializer):
         return 10000
 
     def get_total_rating(self, obj):
-        return obj.rating.count()
+        return obj.user.rating.count()
 
     def get_total_likes(self, obj):
-        return obj.likes.count()
+        return obj.user.likes.count()
 
     def get_total_post(self, obj):
-        return obj.posts.count()
-    def get_posts(self,obj):
-        post = obj.posts.all()
-        return PostProfilePageSerializer(post,many=True).data
+        return obj.user.posts.count()
+    def get_posts(self, obj):
+        posts = obj.user.posts.all()
+        return PostProfilePageSerializer(posts, many=True).data

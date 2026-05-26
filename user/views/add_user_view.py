@@ -6,6 +6,7 @@ from rest_framework import status
 from rest_framework.exceptions import ValidationError   
 
 from ..serivices.add_user import create_user
+from ..serivices.user_profile import create_user_profile
 from ..serializers.user import UserResponseSerializer
 from authentication.jwt.jwt_utils import create_access_token, create_refresh_token
 
@@ -17,7 +18,8 @@ class AddUserView(APIView):
         try:
             user = create_user(request.data)
             response_serializer = UserResponseSerializer(user)
-            print(response_serializer["id"])
+            create_user_profile(user)
+
             access_token = create_access_token(response_serializer.data["id"])
             refresh_token = create_refresh_token(response_serializer.data["id"])
             return Response(
