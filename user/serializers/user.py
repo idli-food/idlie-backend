@@ -31,14 +31,6 @@ class UserResponseSerializer(serializers.ModelSerializer):
             "id",
             "phone",
             "username",
-            "first_name",
-            "last_name",
-            "credibility_score",
-            "avatar_url",
-            "dob",
-            "bio",
-            "diet",
-            "food_preference",
             "created_at",
         ]
 
