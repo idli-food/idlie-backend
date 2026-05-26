@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from user.models import User
-
+from  post.serializers.post_serializer import PostProfilePageSerializer
 
 class ProfileViewSerializer(serializers.ModelSerializer):
 
@@ -8,6 +8,8 @@ class ProfileViewSerializer(serializers.ModelSerializer):
     total_likes = serializers.SerializerMethodField()
     total_stars = serializers.SerializerMethodField()
     total_rating = serializers.SerializerMethodField()
+    total_post = serializers.SerializerMethodField()
+    posts = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -23,6 +25,8 @@ class ProfileViewSerializer(serializers.ModelSerializer):
             "total_likes",
             "total_stars",
             "total_rating",
+            "total_post",
+            "posts",
             "is_verified",
         ]
         read_only_fields = fields
@@ -38,3 +42,6 @@ class ProfileViewSerializer(serializers.ModelSerializer):
 
     def get_total_post(self, obj):
         return obj.posts.count()
+    def get_posts(self,obj):
+        post = obj.posts.all()
+        return PostProfilePageSerializer(post,many=True).data
