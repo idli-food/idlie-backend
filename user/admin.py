@@ -1,7 +1,7 @@
 
 # Register your models here.
 from django.contrib import admin
-from .models import User
+from .models import User, UserProfile
 
 
 @admin.register(User)
@@ -12,8 +12,6 @@ class UserAdmin(admin.ModelAdmin):
         'phone',
         'first_name',
         'last_name',
-        'diet',
-        'credibility_score',
         'created_at',
     )
 
@@ -24,10 +22,7 @@ class UserAdmin(admin.ModelAdmin):
         'last_name',
     )
 
-    list_filter = (
-        'diet',
-        'created_at',
-    )
+    list_filter = ('created_at',)
 
     ordering = ('-created_at',)
 
@@ -40,21 +35,13 @@ class UserAdmin(admin.ModelAdmin):
                 'phone',
                 'first_name',
                 'last_name',
-                'dob',
-            )
-        }),
-        ('Profile', {
-            'fields': (
-                'bio',
-                'avatar_url',
-                'diet',
-                'food_preference',
-            )
-        }),
-        ('Metrics', {
-            'fields': (
-                'credibility_score',
-                'created_at',
             )
         }),
     )
+
+
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'diet', 'credibility_score', 'is_verified')
+    list_filter = ('diet', 'is_verified')
+    search_fields = ('user__username', 'user__phone')

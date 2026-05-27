@@ -26,7 +26,7 @@ load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = os.getenv("DEBUG") == "True"
 USE_S3 = os.getenv("USE_S3", "False") == "True"
-ALLOWED_HOSTS = ["127.0.0.1", "localhost","192.168.1.4","10.60.121.48","0.0.0.0","10.14.31.48","192.168.1.3"]
+ALLOWED_HOSTS = ["127.0.0.1", "localhost","192.168.1.4","10.60.121.48","0.0.0.0","10.14.31.48","192.168.1.2","10.134.102.48"]
 CORS_ALLOW_ALL_ORIGINS = True
 # Application definition
 
