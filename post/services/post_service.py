@@ -18,6 +18,11 @@ def update_post_like_count(post_id):
     Post.objects.filter(id=post_id).update(like_count=total_like_count)
 
 
+def delete_post_like(post_id, user_id):
+    deleted, _ = Like.objects.filter(post_id=post_id, user_id=user_id).delete()
+    return deleted > 0
+
+
 def set_media_url(post):
     try:
         if not post.raw_s3_key:
