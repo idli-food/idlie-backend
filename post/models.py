@@ -52,6 +52,7 @@ class Post(models.Model):
     )
 
     like_count = models.PositiveIntegerField(default=0)
+    comment_count = models.PositiveBigIntegerField(default=0)
     avg_rating = models.FloatField(default=0.0)
     rating_count = models.PositiveIntegerField(default=0)
     composite_score = models.FloatField(default=0.0)
@@ -128,6 +129,7 @@ class Comments(models.Model):
         on_delete=models.CASCADE,
         related_name='comments'
     )
+    content = models.CharField(max_length=2000,blank=False,null=False,default=" ")
     created_at = models.DateTimeField(auto_now_add=True)
 
 

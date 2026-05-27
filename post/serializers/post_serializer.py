@@ -1,6 +1,7 @@
 from rest_framework_gis.fields import GeometryField
 from rest_framework import serializers
 from ..models import Post
+from ..models import Like, Comments, Saved
 
 class CreatePostSerializer(serializers.ModelSerializer):
 
@@ -38,10 +39,46 @@ class CreatePostSerializer(serializers.ModelSerializer):
         validated_data["user"] = self.context["request"].user
         return super().create(validated_data)
 
+
+
+
 class PostProfilePageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
         fields = [
             "thumbnail_url"
+        ]
+
+
+class PostLikeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Like
+        fields = [
+            "user",
+            "post"
+        ]
+
+
+
+
+class PostCommentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Comments
+        fields = [
+            "user",
+            "post",
+            "content"
+        ]
+
+
+class PostSaveSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Saved
+        fields = [
+            "user",
+            "post"
         ]

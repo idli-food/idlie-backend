@@ -1,5 +1,5 @@
 from django.db.models import F
-from ..models import Post, Like
+from ..models import Post, Like, Comments, Saved
 from django.conf import settings
 
 
@@ -45,3 +45,18 @@ def set_thumbnail_url(post):
 
     except Post.DoesNotExist:
         return None
+
+
+def update_post_comment_count(post_id):
+    total_comments = Comments.objects.filter(post_id = post_id).count()
+    Post.objects.filter(id = post_id).update(comment_count = total_comments)
+
+
+def delete_comment(comment_id, user_id):
+    deleted, _ = Comments.objects.filter(id=comment_id, user_id=user_id).delete()
+    return deleted > 0
+
+
+def unsave_post(post_id, user_id):
+    deleted, _ = Saved.objects.filter(post_id=post_id, user_id=user_id).delete()
+    return deleted > 0
