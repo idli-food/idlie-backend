@@ -20,6 +20,14 @@ class FeedUserProfileSerilizer(serializers.ModelSerializer):
 class FeedPostSerializer(serializers.ModelSerializer):
     user = FeedUserSerializer(read_only=True)
     avatar = FeedUserProfileSerilizer(source='user.profile', read_only=True)
+    is_liked = serializers.SerializerMethodField()
+
+    def get_is_liked(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.likes.filter(user=request.user).exists()
+        return False
+
     class Meta:
         model = Post
         fields = [
@@ -36,5 +44,6 @@ class FeedPostSerializer(serializers.ModelSerializer):
             "avg_rating",
             "media_type",
             "composite_score",
+            "is_liked",
             "created_at",
         ]

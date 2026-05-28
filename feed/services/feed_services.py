@@ -15,8 +15,10 @@ def get_feed(lat,lon,radius_km=10):
                 D(km=radius_km)
             )
         )
+        .prefetch_related('likes')
         .order_by("composite_score")[:20]
     )
     print(posts)
 
     return posts
+

@@ -29,6 +29,6 @@ class FeedView(APIView):
             radius
         )
 
-        serializer = FeedPostSerializer(posts, many=True)
+        serializer = FeedPostSerializer(posts, many=True, context={'request': request})
 
         return Response(serializer.data)
