@@ -18,7 +18,7 @@ def get_explore_page_content(lat,lon,radius_km=20):
                 D(km=radius_km)
             )
         )
-        .order_by("composite_score")[:40]
+        .order_by("-composite_score")[:40]
     )
 
     return posts

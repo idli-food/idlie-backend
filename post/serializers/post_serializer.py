@@ -2,6 +2,7 @@ from rest_framework_gis.fields import GeometryField
 from rest_framework import serializers
 from ..models import Post
 from ..models import Like, Comments, Saved
+from user.serivices.user_service import get_avatar_url
 
 class CreatePostSerializer(serializers.ModelSerializer):
 
@@ -50,7 +51,6 @@ class PostProfilePageSerializer(serializers.ModelSerializer):
             "thumbnail_url"
         ]
 
-
 class PostLikeSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -59,10 +59,6 @@ class PostLikeSerializer(serializers.ModelSerializer):
             "user",
             "post"
         ]
-
-
-
-
 class PostCommentSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -73,7 +69,6 @@ class PostCommentSerializer(serializers.ModelSerializer):
             "content"
         ]
 
-
 class PostSaveSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -81,4 +76,48 @@ class PostSaveSerializer(serializers.ModelSerializer):
         fields = [
             "user",
             "post"
+        ]
+
+class FeedPostCommentSerializer(serializers.ModelSerializer):
+
+    username = serializers.SerializerMethodField()
+    avatar = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Comments
+        fields = [
+            "id",
+            "username",
+            "content",
+            "avatar",
+            "created_at"
+        ]
+
+    def get_username(self, obj):
+        return obj.user.username
+
+    def get_avatar(self, obj):
+        return get_avatar_url(obj.user.id)
+
+
+class SavedPostSerilizer(serializers.ModelSerializer):
+
+
+    class Meta:
+        model = Post
+        fields = [
+            "id",
+            "thumbnail_url",
+            "media_type",
+        ]
+
+class SavedPostFeedSerilizer(serializers.ModelSerializer):
+
+
+    class Meta:
+        model = Post
+        fields = [
+            "id",
+            "thumbnail_url",
+            "media_type",
         ]

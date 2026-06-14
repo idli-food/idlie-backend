@@ -28,7 +28,7 @@ class UserProfile(models.Model):
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     name = models.CharField(max_length=150, blank=True)
-    avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
+    avatar = models.URLField(max_length=2000, null=True, blank=True)
     bio = models.TextField(blank=True)
     dob = models.DateField(null=True, blank=True)
     credibility_score = models.FloatField(default=0.5)

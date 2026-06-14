@@ -3,7 +3,8 @@ from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from ..serializers.post_serializer import PostLikeSerializer, PostCommentSerializer, PostSaveSerializer
+from ..serializers.post_serializer import PostLikeSerializer, PostCommentSerializer, PostSaveSerializer, FeedPostCommentSerializer, SavedPostSerilizer
+from feed.serializer.feed_serializer import FeedPostSerializer
 from core.utils.api_response import success_response, error_response
 from ..services import post_service
 
@@ -100,6 +101,47 @@ class  PostCommentView(APIView):
 
     permission_classes = [IsAuthenticated]
 
+
+
+    def get(self,request,post_id):
+
+        try:
+
+            print("here")
+
+
+
+            if post_service.check_post_availablity(post_id=post_id):
+                raise ValidationError("Post not available")
+            
+            comment = post_service.get_comments(post_id=post_id)
+            serializer = FeedPostCommentSerializer(comment, many=True, context={'request': request})
+            print(serializer)
+
+            return success_response(
+                message="done",
+                data=serializer.data
+            )
+
+
+        
+        except ValidationError as e:
+
+            return error_response(
+                message="Validation error",
+                errors=e.detail,
+                code=status.HTTP_400_BAD_REQUEST
+            )
+
+        except Exception as e:
+
+            return error_response(
+                message="Something went wrong",
+                errors=str(e),
+                code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
     def post(self, request, post_id):
 
         try:
@@ -123,14 +165,7 @@ class  PostCommentView(APIView):
                 message="Commented successfully",
                 code=status.HTTP_201_CREATED
             )
-
-        except IntegrityError:
-
-            return error_response(
-                message="You already commented on this ",
-                code=status.HTTP_400_BAD_REQUEST
-            )
-
+        
         except ValidationError as e:
 
             return error_response(
@@ -244,3 +279,44 @@ class SavePostView(APIView):
                 errors=str(e),
                 code=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+
+
+class GetSavedPostView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+
+        print("hreer")
+
+        try:
+            posts = post_service.get_saved_post(request.user.id)
+
+            if request.query_params.get("view") == "feed":
+                serializer = FeedPostSerializer(posts, many=True, context={'request': request})
+            else:
+                serializer = SavedPostSerilizer(posts, many=True)
+
+            return success_response(
+                message="saved post",
+                data=serializer.data
+            )
+
+        except ValidationError as e:
+
+            return error_response(
+                message="Validation error",
+                errors=e.detail,
+                code=status.HTTP_400_BAD_REQUEST
+            )
+
+        except Exception as e:
+
+            return error_response(
+                message="Something went wrong",
+                errors=str(e),
+                code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+

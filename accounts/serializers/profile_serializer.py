@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from user.models import User,UserProfile
-from  post.serializers.post_serializer import PostProfilePageSerializer
+from django.contrib.gis.geos import Point
+from user.models import User, UserProfile
+from post.serializers.post_serializer import PostProfilePageSerializer
 
 
 class ProfileViewSerializer(serializers.ModelSerializer):
@@ -49,3 +50,40 @@ class ProfileViewSerializer(serializers.ModelSerializer):
     def get_posts(self, obj):
         posts = obj.user.posts.all()
         return PostProfilePageSerializer(posts, many=True).data
+
+
+class CompleteProfileSerializer(serializers.ModelSerializer):
+    lat = serializers.FloatField(write_only=True, required=False)
+    lon = serializers.FloatField(write_only=True, required=False)
+
+    class Meta:
+        model = UserProfile
+        fields = ['name', 'bio', 'dob', 'diet', 'food_preference', 'avatar', 'lat', 'lon']
+        extra_kwargs = {
+            'name': {'required': False},
+            'bio': {'required': False, 'allow_blank': True},
+            'dob': {'required': False},
+            'diet': {'required': False, 'allow_blank': True},
+            'food_preference': {'required': False, 'allow_blank': True},
+            'avatar': {'required': False},
+        }
+
+    def validate(self, data):
+        lat = data.get('lat')
+        lon = data.get('lon')
+        if (lat is None) != (lon is None):
+            raise serializers.ValidationError("Both lat and lon are required together.")
+        return data
+
+    def update(self, instance, validated_data):
+        lat = validated_data.pop('lat', None)
+        lon = validated_data.pop('lon', None)
+
+        for field, value in validated_data.items():
+            setattr(instance, field, value)
+
+        if lat is not None and lon is not None:
+            instance.location = Point(lon, lat, srid=4326)
+
+        instance.save()
+        return instance

@@ -60,3 +60,13 @@ def delete_comment(comment_id, user_id):
 def unsave_post(post_id, user_id):
     deleted, _ = Saved.objects.filter(post_id=post_id, user_id=user_id).delete()
     return deleted > 0
+
+
+
+def get_comments(post_id):
+    comments = Comments.objects.filter(post_id = post_id)
+    return comments
+
+ 
+def get_saved_post(user_id):
+    return Post.objects.filter(saved__user_id=user_id)
