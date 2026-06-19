@@ -1,8 +1,7 @@
 from rest_framework import serializers
 from django.contrib.gis.geos import Point
 from user.models import User, UserProfile
-from post.serializers.post_serializer import PostProfilePageSerializer
-
+from post.services import post_service
 
 class ProfileViewSerializer(serializers.ModelSerializer):
 
@@ -12,7 +11,6 @@ class ProfileViewSerializer(serializers.ModelSerializer):
     total_stars = serializers.SerializerMethodField()
     total_rating = serializers.SerializerMethodField()
     total_post = serializers.SerializerMethodField()
-    posts = serializers.SerializerMethodField()
     completion_percentage = serializers.ReadOnlyField()
     incomplete_fields = serializers.ReadOnlyField()
     is_profile_complete = serializers.ReadOnlyField()
@@ -29,7 +27,6 @@ class ProfileViewSerializer(serializers.ModelSerializer):
             "total_stars",
             "total_rating",
             "total_post",
-            "posts",
             "is_verified",
             'completion_percentage', 'incomplete_fields', 'is_profile_complete',
             
@@ -47,14 +44,13 @@ class ProfileViewSerializer(serializers.ModelSerializer):
 
     def get_total_post(self, obj):
         return obj.user.posts.count()
-    def get_posts(self, obj):
-        posts = obj.user.posts.all()
-        return PostProfilePageSerializer(posts, many=True).data
+
 
 
 class CompleteProfileSerializer(serializers.ModelSerializer):
     lat = serializers.FloatField(write_only=True, required=False)
     lon = serializers.FloatField(write_only=True, required=False)
+    avatar = serializers.CharField(required=False, allow_blank=True)
 
     class Meta:
         model = UserProfile
@@ -78,6 +74,10 @@ class CompleteProfileSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         lat = validated_data.pop('lat', None)
         lon = validated_data.pop('lon', None)
+        avatar = validated_data.pop('avatar',None)
+
+        if avatar is not None:
+            instance.avatar = post_service.get_s3_public_url(avatar)
 
         for field, value in validated_data.items():
             setattr(instance, field, value)
