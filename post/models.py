@@ -49,7 +49,7 @@ class Post(models.Model):
         max_length=10,
         choices=Status.choices,
         default=Status.DRAFT
-    )
+    ) 
 
     like_count = models.PositiveIntegerField(default=0)
     comment_count = models.PositiveBigIntegerField(default=0)
