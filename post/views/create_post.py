@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from ..serializers.post_serializer import CreatePostSerializer
 from core.utils.api_response import success_response, error_response
 from ..services import post_service
+from ..services.celery_task import generate_thumbnail
 
 class CreatePostView(APIView):
 
@@ -28,7 +29,11 @@ class CreatePostView(APIView):
 
                 post_output = CreatePostSerializer(post).data
                 post_service.set_media_url(post)
-                post_service.set_thumbnail_url(post)
+                if post_output['media_type'] == 'video':
+                    generate_thumbnail.delay(post_id=post.id)
+                elif post_output['media_type'] == 'image':
+                    post_service.set_thumbnail_url_image(post.id)                    
+
                 return success_response(
                     message="Post uploaded successfully",
                     data={

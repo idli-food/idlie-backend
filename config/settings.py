@@ -26,7 +26,7 @@ load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = os.getenv("DEBUG") == "True"
 USE_S3 = os.getenv("USE_S3", "False") == "True"
-ALLOWED_HOSTS = ["127.0.0.1", "localhost","192.168.1.4","10.60.121.48","0.0.0.0","10.14.31.48","192.168.1.2","10.134.102.48","10.115.230.48","192.168.1.3"]
+ALLOWED_HOSTS = ["127.0.0.1", "localhost","192.168.1.4","10.97.194.48","10.60.121.48","0.0.0.0","10.14.31.48","192.168.1.2","10.134.102.48","10.115.230.48","192.168.1.3"]
 CORS_ALLOW_ALL_ORIGINS = True
 # Application definition
 
@@ -34,6 +34,19 @@ AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
 AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME")
+
+
+
+CELERY_BROKER_URL = "redis://localhost:6379/0"
+CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
+
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = "Asia/Kolkata"
+
+
+
 
 
 

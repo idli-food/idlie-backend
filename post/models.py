@@ -16,6 +16,10 @@ class Post(models.Model):
         PUBLISHED = 'published', 'Published'
         ARCHIVED = 'archived', 'Archived'
 
+    class UploadStatus(models.TextChoices):
+        PROCESSING = "processing"
+        UPLOADED = "uploaded"
+        FAILED = "failed"
 
     user = models.ForeignKey(
         User,
@@ -56,6 +60,11 @@ class Post(models.Model):
     avg_rating = models.FloatField(default=0.0)
     rating_count = models.PositiveIntegerField(default=0)
     composite_score = models.FloatField(default=0.0)
+    upload_status = models.CharField(
+        max_length=10,
+        choices=UploadStatus.choices,
+        default=UploadStatus.PROCESSING
+    ) 
 
     # Optional geolocation for the post itself
     location = gis_models.PointField(geography=True, null=True, blank=True)
@@ -64,8 +73,6 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
-    
-
 
 
 
@@ -118,17 +125,21 @@ class Ratings(models.Model):
         ]
 
 class Comments(models.Model):
+    
     id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='comments'
     )
+
     post = models.ForeignKey(
         Post,
         on_delete=models.CASCADE,
         related_name='comments'
     )
+
     content = models.CharField(max_length=2000,blank=False,null=False,default=" ")
     created_at = models.DateTimeField(auto_now_add=True)
 
