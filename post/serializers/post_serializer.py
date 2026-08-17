@@ -4,7 +4,7 @@ from ..models import Post
 from ..models import Like, Comments, Saved
 from user.serivices.user_service import get_avatar_url
 
-class CreatePostSerializer(serializers.ModelSerializer):
+class   CreatePostSerializer(serializers.ModelSerializer):
 
     location = GeometryField(required=False)
 
