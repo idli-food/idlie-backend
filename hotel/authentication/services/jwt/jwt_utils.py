@@ -9,7 +9,7 @@ def create_access_token(user_id):
     payload = {
         "user_id" : user_id,
         "type" : "access",
-        "role" : "user",
+        "role" : "hotel",
         "exp" : datetime.now(timezone.utc) + settings.ACCESS_TOKEN_LIFETIME,
         "iat" : datetime.now(timezone.utc),
     }
@@ -22,7 +22,7 @@ def create_refresh_token(user_id):
     payload = {
         "user_id" : user_id,
         "type" : "refresh",
-        "role" : "user",
+        "role" : "hotel",
         "exp": datetime.now(timezone.utc) + settings.REFRESH_TOKEN_LIFETIME,
         "iat": datetime.now(timezone.utc),
     }

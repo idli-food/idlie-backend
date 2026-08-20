@@ -2,6 +2,8 @@ import jwt
 
 from django.conf import settings
 from user.models import User
+from hotel.models import Hotel
+
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 
@@ -30,9 +32,18 @@ class JWTAuthentication(BaseAuthentication):
             if payload["type"] != "access":
                 raise AuthenticationFailed("Invalid token type")
 
-            user = User.objects.get(id=payload["user_id"])
 
-            return (user, token)
+
+            if payload["role"] == "hotel":
+                principal = Hotel.objects.get(id=payload["user_id"])
+
+            elif payload["role"] == "user":
+                principal = User.objects.get(id=payload["user_id"])
+            else:
+                raise AuthenticationFailed("Invalid role in token")
+
+
+            return (principal, token)
 
         except jwt.ExpiredSignatureError:
             raise AuthenticationFailed("Token expired")
@@ -42,6 +53,7 @@ class JWTAuthentication(BaseAuthentication):
 
         except User.DoesNotExist:
             raise AuthenticationFailed("User not found")
-
+        except Hotel.DoesNotExist:
+            raise AuthenticationFailed("User not found")
         except Exception as e:
             raise AuthenticationFailed(str(e))

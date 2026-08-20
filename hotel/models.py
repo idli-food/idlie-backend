@@ -20,6 +20,9 @@ class Hotel(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     location = gis_models.PointField(geography=True, null=True, blank=True)
 
+    @property
+    def is_authenticated(self):
+        return True
 
     def __str__(self):
         return self.name

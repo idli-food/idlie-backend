@@ -5,6 +5,7 @@ from ..utils.login_auth import validate_phone_number
 from core.utils.api_response import success_response, error_response
 from ...authentication.services.otp_services import OTPServices
 from ...services.hotel_services import get_hotel_id_by_phone_number
+from ...authentication.services.jwt.jwt_utils import create_access_token, create_refresh_token
 
 class SendLoginOTPView(APIView):
 
@@ -62,6 +63,18 @@ class ValidateLoginOTPView(APIView):
 
         hotel_id = get_hotel_id_by_phone_number(phone_number)
 
+        if hotel_id is None:
+            return error_response(message="Hotel not found for this phone number")
 
-        
-        return success_response(message="Login successful", data={"phone_number": phone_number,"id": hotel_id})
+        access_token = create_access_token(hotel_id)
+        refresh_token = create_refresh_token(hotel_id)
+
+        return success_response(
+            message="Login successful",
+            data={
+                "phone_number": phone_number,
+                "id": hotel_id,
+                "access": access_token,
+                "refresh": refresh_token,
+            },
+        )
