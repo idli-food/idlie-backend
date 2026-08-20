@@ -52,3 +52,7 @@ htmlcov/
 
 # Misc
 *.sqlite3
+
+# Local data dumps
+hotels.csv
+restaurants.csv

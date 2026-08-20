@@ -1,6 +1,7 @@
 from django.db.models import F
 from ..models import Post, Like, Comments, Saved
 from django.conf import settings
+from hotel.models import Hotel
 import boto3
 
 
@@ -54,8 +55,11 @@ def update_post_comment_count(post_id):
     Post.objects.filter(id = post_id).update(comment_count = total_comments)
 
 
-def delete_comment(comment_id, user_id):
-    deleted, _ = Comments.objects.filter(id=comment_id, user_id=user_id).delete()
+def delete_comment(comment_id, author):
+    if isinstance(author, Hotel):
+        deleted, _ = Comments.objects.filter(id=comment_id, hotel_id=author.id).delete()
+    else:
+        deleted, _ = Comments.objects.filter(id=comment_id, user_id=author.id).delete()
     return deleted > 0
 
 def unsave_post(post_id, user_id):

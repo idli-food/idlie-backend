@@ -4,6 +4,7 @@ from django.contrib.gis.db import models as gis_models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from foodspot.models import FoodSpot
 from user.models import User
+from hotel.models import Hotel
 
 
 class Post(models.Model):
@@ -24,7 +25,17 @@ class Post(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='posts'
+        related_name='posts',
+        null=True,
+        blank=True,
+    )
+
+    hotel = models.ForeignKey(
+        Hotel,
+        on_delete=models.CASCADE,
+        related_name='posts',
+        null=True,
+        blank=True,
     )
 
     food_spot = models.ForeignKey(
@@ -70,6 +81,21 @@ class Post(models.Model):
     location = gis_models.PointField(geography=True, null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                condition=(
+                    models.Q(user__isnull=False, hotel__isnull=True)
+                    | models.Q(user__isnull=True, hotel__isnull=False)
+                ),
+                name='post_author_is_exactly_one_of_user_or_hotel',
+            )
+        ]
+
+    @property
+    def author(self):
+        return self.user or self.hotel
 
     def __str__(self):
         return self.title
@@ -131,7 +157,17 @@ class Comments(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='comments'
+        related_name='comments',
+        null=True,
+        blank=True,
+    )
+
+    hotel = models.ForeignKey(
+        Hotel,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        null=True,
+        blank=True,
     )
 
     post = models.ForeignKey(
@@ -142,6 +178,21 @@ class Comments(models.Model):
 
     content = models.CharField(max_length=2000,blank=False,null=False,default=" ")
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                condition=(
+                    models.Q(user__isnull=False, hotel__isnull=True)
+                    | models.Q(user__isnull=True, hotel__isnull=False)
+                ),
+                name='comment_author_is_exactly_one_of_user_or_hotel',
+            )
+        ]
+
+    @property
+    def author(self):
+        return self.user or self.hotel
 
 
 class Saved(models.Model):

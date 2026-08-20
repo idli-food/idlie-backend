@@ -18,12 +18,25 @@ class FeedUserProfileSerilizer(serializers.ModelSerializer):
         ]
 
 class FeedPostSerializer(serializers.ModelSerializer):
-    user = FeedUserSerializer(read_only=True)
-    avatar = FeedUserProfileSerilizer(source='user.profile', read_only=True)
+    user = serializers.SerializerMethodField()
+    avatar = serializers.SerializerMethodField()
     is_liked = serializers.SerializerMethodField()
     is_saved = serializers.SerializerMethodField()
     location = serializers.SerializerMethodField()
 
+    def get_user(self, obj):
+        if obj.hotel_id:
+            return {"id": obj.hotel_id, "username": obj.hotel.name}
+        if obj.user_id:
+            return FeedUserSerializer(obj.user).data
+        return None
+
+    def get_avatar(self, obj):
+        if obj.hotel_id:
+            return None
+        if obj.user_id and hasattr(obj.user, "profile"):
+            return FeedUserProfileSerilizer(obj.user.profile).data.get("avatar")
+        return None
 
     def get_is_liked(self, obj):
         request = self.context.get('request')

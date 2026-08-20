@@ -7,6 +7,7 @@ from ..serializers.post_serializer import PostLikeSerializer, PostCommentSeriali
 from feed.serializer.feed_serializer import FeedPostSerializer
 from core.utils.api_response import success_response, error_response
 from ..services import post_service
+from hotel.models import Hotel
 
 
 class LikePostView(APIView):
@@ -107,16 +108,12 @@ class  PostCommentView(APIView):
 
         try:
 
-            print("here")
-
 
 
             if post_service.check_post_availablity(post_id=post_id):
                 raise ValidationError("Post not available")
-            
             comment = post_service.get_comments(post_id=post_id)
             serializer = FeedPostCommentSerializer(comment, many=True, context={'request': request})
-            print(serializer)
 
             return success_response(
                 message="done",
@@ -151,11 +148,16 @@ class  PostCommentView(APIView):
             if post_service.check_post_availablity(post_id=post_id):
                 raise ValidationError("Post not available")
 
-            serializer = PostCommentSerializer(data={
-                "user" : request.user.id,
-                "post" : post_id,
-                "content" : content
-            })
+            comment_data = {
+                "post": post_id,
+                "content": content
+            }
+            if isinstance(request.user, Hotel):
+                comment_data["hotel"] = request.user.id
+            else:
+                comment_data["user"] = request.user.id
+
+            serializer = PostCommentSerializer(data=comment_data)
 
             serializer.is_valid(raise_exception=True)
             serializer.save()
@@ -186,7 +188,7 @@ class  PostCommentView(APIView):
 
         try:
 
-            deleted = post_service.delete_comment(comment_id=comment_id, user_id=request.user.id)
+            deleted = post_service.delete_comment(comment_id=comment_id, author=request.user)
 
             if not deleted:
                 return error_response(
