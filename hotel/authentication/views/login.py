@@ -74,7 +74,7 @@ class ValidateLoginOTPView(APIView):
             data={
                 "phone_number": phone_number,
                 "id": hotel_id,
-                "access": access_token,
-                "refresh": refresh_token,
+                "access_token": access_token,
+                "refresh_token": refresh_token,
             },
         )

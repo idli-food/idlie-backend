@@ -4,10 +4,10 @@ from django.conf import settings
 
 
 
-def create_access_token(user_id):
+def create_access_token(hotel_id):
 
     payload = {
-        "user_id" : user_id,
+        "hotel_id" : hotel_id,
         "type" : "access",
         "role" : "hotel",
         "exp" : datetime.now(timezone.utc) + settings.ACCESS_TOKEN_LIFETIME,
@@ -17,10 +17,10 @@ def create_access_token(user_id):
     return jwt.encode(payload,settings.JWT_SECRET,algorithm="HS256")
 
 
-def create_refresh_token(user_id):
+def create_refresh_token(hotel_id):
 
     payload = {
-        "user_id" : user_id,
+        "hotel_id" : hotel_id,
         "type" : "refresh",
         "role" : "hotel",
         "exp": datetime.now(timezone.utc) + settings.REFRESH_TOKEN_LIFETIME,

@@ -35,7 +35,7 @@ class JWTAuthentication(BaseAuthentication):
 
 
             if payload["role"] == "hotel":
-                principal = Hotel.objects.get(id=payload["user_id"])
+                principal = Hotel.objects.get(id=payload["hotel_id"])
 
             elif payload["role"] == "user":
                 principal = User.objects.get(id=payload["user_id"])

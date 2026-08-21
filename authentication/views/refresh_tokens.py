@@ -24,6 +24,8 @@ class RefreshAccessToken(APIView):
             
             if payload["type"] != "refresh":
                 return error_response(message="invalid token type",code=status.HTTP_401_UNAUTHORIZED)
+            if payload.get("role") != "user":
+                return error_response(message="invalid token role",code=status.HTTP_401_UNAUTHORIZED)
             new_access_token = create_access_token(payload["user_id"])
 
             return Response({
