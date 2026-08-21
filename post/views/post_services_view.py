@@ -284,6 +284,8 @@ class SavePostView(APIView):
 
 
 
+
+#  used to get all the posts of a particular author (user or hotel)
 class GetAuthorPostsView(APIView):
 
     permission_classes = [IsAuthenticated]

@@ -11,5 +11,6 @@ urlpatterns = [
     path("<int:post_id>/comment/<uuid:comment_id>/", PostCommentView.as_view(), name="post comment"),
     path("<int:post_id>/save/", SavePostView.as_view(), name="save post"),
     path("saved/me/", GetSavedPostView.as_view(), name="save post"),
+#  used to get all the posts of a particular author (user or hotel)
     path("author/", GetAuthorPostsView.as_view(), name="author posts"),
 ]
