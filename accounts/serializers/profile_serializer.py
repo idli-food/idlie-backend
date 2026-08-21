@@ -87,10 +87,3 @@ class CompleteProfileSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
-
-
-
-
-
-class ProfilePostSerializer(serializers.ModelSerializer):
-    

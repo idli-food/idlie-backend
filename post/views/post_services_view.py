@@ -284,6 +284,49 @@ class SavePostView(APIView):
 
 
 
+class GetAuthorPostsView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+
+        try:
+
+            user_id = request.data.get("user_id")
+            hotel_id = request.data.get("hotel_id")
+
+            if not user_id and not hotel_id:
+                raise ValidationError("user_id or hotel_id is required")
+
+            posts = post_service.get_posts_by_author(user_id=user_id, hotel_id=hotel_id)
+
+            if request.query_params.get("view") == "feed":
+                serializer = FeedPostSerializer(posts, many=True, context={'request': request})
+            else:
+                serializer = SavedPostSerilizer(posts, many=True)
+
+            return success_response(
+                message="author posts",
+                data=serializer.data
+            )
+
+        except ValidationError as e:
+
+            return error_response(
+                message="Validation error",
+                errors=e.detail,
+                code=status.HTTP_400_BAD_REQUEST
+            )
+
+        except Exception as e:
+
+            return error_response(
+                message="Something went wrong",
+                errors=str(e),
+                code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
 class GetSavedPostView(APIView):
 
     permission_classes = [IsAuthenticated]

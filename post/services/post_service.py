@@ -75,6 +75,12 @@ def get_saved_post(user_id):
     return Post.objects.filter(saved__user_id=user_id)
 
 
+def get_posts_by_author(user_id=None, hotel_id=None):
+    if hotel_id:
+        return Post.objects.filter(hotel_id=hotel_id, status=Post.Status.PUBLISHED)
+    return Post.objects.filter(user_id=user_id, status=Post.Status.PUBLISHED)
+
+
 def upload_file_to_s3(
     file_path: str,
     s3_key: str,

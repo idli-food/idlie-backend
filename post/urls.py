@@ -1,7 +1,7 @@
 from django.urls import path
 from .views.generate_upload_url import GenerateUploadUrlView
 from .views.create_post import CreatePostView
-from .views.post_services_view import LikePostView, PostCommentView, SavePostView, GetSavedPostView
+from .views.post_services_view import LikePostView, PostCommentView, SavePostView, GetSavedPostView, GetAuthorPostsView
 
 urlpatterns = [
     path("content/upload-url/", GenerateUploadUrlView.as_view(), name="get upload url"),
@@ -11,4 +11,5 @@ urlpatterns = [
     path("<int:post_id>/comment/<uuid:comment_id>/", PostCommentView.as_view(), name="post comment"),
     path("<int:post_id>/save/", SavePostView.as_view(), name="save post"),
     path("saved/me/", GetSavedPostView.as_view(), name="save post"),
+    path("author/", GetAuthorPostsView.as_view(), name="author posts"),
 ]
