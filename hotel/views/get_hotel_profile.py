@@ -6,6 +6,7 @@ from ..models import Hotel
 from ..serializers.hotel_serializer import HotelProfileSerializer
 from ..services.hotel_services import calculate_profile_completion
 from core.utils.api_response import success_response, error_response
+from rest_framework.permissions import IsAuthenticated
 
 
 class GetHotelProfileView(APIView):
