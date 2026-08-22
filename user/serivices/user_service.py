@@ -6,7 +6,7 @@ import uuid
 from botocore.client import Config
 from django.conf import settings
 
-def get_avatar_upload_url(filename,content_type):
+def get_avatar_upload_url(filename,content_type, role="user"):
 
     if filename is None or content_type is None:
         raise ValidationError({
@@ -15,7 +15,8 @@ def get_avatar_upload_url(filename,content_type):
     
     extension = filename.split(".")[-1]
 
-    key = f"upload/user-avatar/{uuid.uuid4()}.{extension}"
+
+    key = f"upload/{role}-avatar/{uuid.uuid4()}.{extension}"
     s3_client = boto3.client(
         "s3",
         region_name="ap-south-1",
