@@ -123,26 +123,52 @@ uv sync
 
 # Environment Configuration
 
-Create a `.env` file in the root directory.
+Copy the example file and fill it in — these are the exact keys `config/settings.py` reads via `os.getenv(...)`:
 
-Example:
+```bash
+cp .env.example .env
+```
 
 ```env
+# Database (used directly by settings.py DATABASES config)
+DB_NAME=idlie_db
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_HOST=localhost
+DB_PORT=5432
+
+# Django
+SECRET_KEY=your-secret-key   # also used as the JWT signing secret
 DEBUG=True
 
-SECRET_KEY=your-secret-key
-
-DATABASE_NAME=idlie_db
-DATABASE_USER=postgres
-DATABASE_PASSWORD=postgres
-DATABASE_HOST=localhost
-DATABASE_PORT=5432
-
+# Media storage — only required if USE_S3=True
+USE_S3=False
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_STORAGE_BUCKET_NAME=
+AWS_S3_REGION_NAME=
+AWS_QUERYSTRING_AUTH=
+AWS_DEFAULT_ACL=
+AWS_S3_SIGNATURE_VERSION=
 ```
+
+> Leave `USE_S3=False` for local development unless you're testing avatar/media uploads — the AWS variables are only needed once it's `True`. Signup/login OTPs are stubbed in `authentication/services/otp_services.py` (always `221180`), so no SMS provider is needed locally.
 
 ---
 
 # PostgreSQL + PostGIS Setup
+
+You need a Postgres instance with the PostGIS extension available. Pick one:
+
+## Option A — Docker (recommended, matches production)
+
+```bash
+docker compose up -d db
+```
+
+This starts the `postgis/postgis:16-3.4` image on `localhost:5433` using the same `.env` file, and creates the volume automatically. Point `DB_HOST` at your Docker host (`localhost`) and `DB_PORT` at `5433` if you use this option instead of a local Postgres install.
+
+## Option B — Local Postgres install
 
 Login to PostgreSQL:
 
@@ -167,6 +193,8 @@ Enable PostGIS extension:
 ```sql
 CREATE EXTENSION postgis;
 ```
+
+> The app also links against GDAL/GEOS at the Python level (`django.contrib.gis`, `djangorestframework-gis`) for the `Hotel.location` field. On Linux, install the native libraries first: `sudo apt-get install binutils libproj-dev gdal-bin libgdal-dev` (see `Dockerfile` for the full list). This step isn't needed with Option A, since the app container already has them.
 
 ---
 
@@ -197,6 +225,17 @@ Server will run at:
 ```text
 http://127.0.0.1:8000/
 ```
+
+## Optional: Celery / Redis
+
+Background tasks (`celery`) are configured against `redis://localhost:6379/0` (see `config/settings.py`). You only need Redis and a worker running if you're exercising async task code:
+
+```bash
+redis-server
+celery -A config worker -l info
+```
+
+For a plain API dev loop, `runserver` alone is enough — Celery isn't required to boot the app.
 
 
 # Useful Commands
