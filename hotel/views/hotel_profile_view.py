@@ -55,25 +55,3 @@ class GetHotelProfileView(APIView):
 
 
 
-
-
-
-
-class UploadProfilePictureURLView(APIView):
-    
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request,key):
-        try :
-            key = request.data.get("key")
-            return success_response(
-                message="Profile picture upload URL generated",
-                data=result,
-                code=status.HTTP_200_OK
-            )
-        except Exception as e:
-            return error_response(
-                message="Failed to generate upload URL",
-                errors=str(e),
-                code=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )

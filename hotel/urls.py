@@ -8,6 +8,14 @@ from .authentication.views.validate_otp import ValidateOTPView
 from .authentication.views.login import SendLoginOTPView,ValidateLoginOTPView
 from .authentication.views.token_refresh import RefreshAccessToken
 from .views.hotel_service_views import UploadProfilePictureURLView
+from .menu.views.create_menu import CreateMenuView
+from .menu.views.menu_detail import MenuDetailView
+from .menu.views.create_category import CreateMenuCategoryView
+from .menu.views.category_detail import MenuCategoryDetailView
+from .menu.views.create_fooditem import CreateFoodItemView
+from .menu.views.fooditem_detail import FoodItemDetailView
+from .menu.views.create_variant import CreateFoodItemVariantView
+from .menu.views.variant_detail import FoodItemVariantDetailView
 urlpatterns = [
     path("create/", CreateHotelView.as_view(), name="create-hotel"),
     path("signup/", SignupView.as_view(), name="signup"),
@@ -17,6 +25,14 @@ urlpatterns = [
     path("validate-login-otp/", ValidateLoginOTPView.as_view(), name="validate-login-otp"),
     path("profile/", GetHotelProfileView.as_view(), name="hotel-profile"),
     path("avatar-upload-url/", UploadProfilePictureURLView.as_view(), name="hotel-avatar-upload-url"),
+    path("menu/create/", CreateMenuView.as_view(), name="create-menu"),
+    path("menu/<int:pk>/", MenuDetailView.as_view(), name="menu-detail"),
+    path("menu/<int:menu_id>/category/create/", CreateMenuCategoryView.as_view(), name="create-menu-category"),
+    path("menu/category/<int:pk>/", MenuCategoryDetailView.as_view(), name="menu-category-detail"),
+    path("menu/category/<int:category_id>/item/create/", CreateFoodItemView.as_view(), name="create-food-item"),
+    path("menu/item/<int:pk>/", FoodItemDetailView.as_view(), name="food-item-detail"),
+    path("menu/item/<int:food_item_id>/variant/create/", CreateFoodItemVariantView.as_view(), name="create-food-item-variant"),
+    path("menu/variant/<int:pk>/", FoodItemVariantDetailView.as_view(), name="food-item-variant-detail"),
 
 
 ]

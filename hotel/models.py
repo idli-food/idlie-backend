@@ -39,6 +39,8 @@ class HotelProfile(models.Model):
 
 
 class FoodType(models.TextChoices):
+
+    
     VEG = "veg", "Veg"
     NON_VEG = "non_veg", "Non-Veg"
     EGG = "egg", "Egg"
