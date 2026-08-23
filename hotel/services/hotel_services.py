@@ -15,13 +15,11 @@ def get_hotel_id_by_phone_number(phone_number):
 
 
 def calculate_profile_completion(hotel):
-    profile = getattr(hotel, "profile", None)
-
     fields = [
         hotel.name,
         hotel.phone_number,
         hotel.location,
-        profile.bio if profile else None,
+        hotel.avatar,
     ]
 
     filled = sum(

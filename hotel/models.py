@@ -19,6 +19,7 @@ class Hotel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     location = gis_models.PointField(geography=True, null=True, blank=True)
+    avatar = models.URLField(blank=True, null=True)
 
     @property
     def is_authenticated(self):
@@ -26,13 +27,6 @@ class Hotel(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class HotelProfile(models.Model):
-    Hotel = models.OneToOneField(Hotel, on_delete=models.CASCADE, related_name="profile")
-    bio = models.TextField(blank=True, null=True)
-    avatar = models.URLField(blank=True, null=True)
-    nof_post = models.IntegerField(default=0)
 
 
 
