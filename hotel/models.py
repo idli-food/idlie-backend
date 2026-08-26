@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.gis.db import models as gis_models
+from django.core.validators import MinValueValidator, MaxValueValidator
 from rest_framework_gis.fields import GeometryField
 
 # Create your models here.
@@ -30,6 +31,34 @@ class Hotel(models.Model):
 
 
 
+
+
+class HotelRating(models.Model):
+    user = models.ForeignKey(
+        "user.User",
+        on_delete=models.CASCADE,
+        related_name="hotel_ratings"
+    )
+    hotel = models.ForeignKey(
+        Hotel,
+        on_delete=models.CASCADE,
+        related_name="ratings"
+    )
+    rating_count = models.SmallIntegerField(
+        validators=[
+            MinValueValidator(1),
+            MaxValueValidator(5)
+        ]
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "hotel"],
+                name="unique_user_hotel_rating"
+            )
+        ]
 
 
 class FoodType(models.TextChoices):
