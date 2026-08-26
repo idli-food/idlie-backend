@@ -16,6 +16,7 @@ from .menu.views.create_fooditem import CreateFoodItemView
 from .menu.views.fooditem_detail import FoodItemDetailView
 from .menu.views.create_variant import CreateFoodItemVariantView
 from .menu.views.variant_detail import FoodItemVariantDetailView
+from .views.rating_view import CreateHotelRatingView, CreateHotelReviewView
 urlpatterns = [
     path("create/", CreateHotelView.as_view(), name="create-hotel"),
     path("signup/", SignupView.as_view(), name="signup"),
@@ -33,6 +34,8 @@ urlpatterns = [
     path("menu/item/<int:pk>/", FoodItemDetailView.as_view(), name="food-item-detail"),
     path("menu/item/<int:food_item_id>/variant/create/", CreateFoodItemVariantView.as_view(), name="create-food-item-variant"),
     path("menu/variant/<int:pk>/", FoodItemVariantDetailView.as_view(), name="food-item-variant-detail"),
+    path("<int:hotel_id>/rating/", CreateHotelRatingView.as_view(), name="create-hotel-rating"),
+    path("<int:hotel_id>/review/", CreateHotelReviewView.as_view(), name="create-hotel-review"),
 
 
 ]
