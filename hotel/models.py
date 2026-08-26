@@ -75,6 +75,14 @@ class HotelReview(models.Model):
     review_text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "hotel"],
+                name="unique_user_hotel_review"
+            )
+        ]
+
 
 class FoodType(models.TextChoices):
 
