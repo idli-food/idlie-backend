@@ -61,6 +61,21 @@ class HotelRating(models.Model):
         ]
 
 
+class HotelReview(models.Model):
+    user = models.ForeignKey(
+        "user.User",
+        on_delete=models.CASCADE,
+        related_name="hotel_reviews"
+    )
+    hotel = models.ForeignKey(
+        Hotel,
+        on_delete=models.CASCADE,
+        related_name="reviews"
+    )
+    review_text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
 class FoodType(models.TextChoices):
 
     
