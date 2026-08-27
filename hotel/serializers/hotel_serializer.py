@@ -34,6 +34,7 @@ class HotelProfileSerializer(serializers.ModelSerializer):
             "name",
             "phone_number",
             "avatar",
+            "address",
             "location",
             "location_link",
         ]
