@@ -1,6 +1,8 @@
+from rest_framework_gis.fields import GeometryField
 from rest_framework import serializers
 from post.models import Post
 from ..services.fetch_media import get_pre_signed_url
+from ..services.feed_services import get_hotel_location_link
 from user.models import User,UserProfile
 
 class FeedUserSerializer(serializers.ModelSerializer):
@@ -20,14 +22,22 @@ class FeedUserProfileSerilizer(serializers.ModelSerializer):
 class FeedPostSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
     avatar = serializers.SerializerMethodField()
+    location = serializers.SerializerMethodField()
     is_liked = serializers.SerializerMethodField()
+
+    def get_location(self, obj):
+        if self.context.get('platform') == 'web':
+            return get_hotel_location_link(obj.hotel_id)
+        if obj.location:
+            return GeometryField().to_representation(obj.location)
+        return None
     is_saved = serializers.SerializerMethodField()
 
     def get_user(self, obj):
-        if obj.hotel_id:
-            return {"id": obj.hotel_id, "username": obj.hotel.name}
         if obj.user_id:
             return FeedUserSerializer(obj.user).data
+        if obj.hotel_id:
+            return {"id": obj.hotel_id, "username": obj.hotel.name}
         return None
 
     def get_avatar(self, obj):
@@ -67,4 +77,5 @@ class FeedPostSerializer(serializers.ModelSerializer):
             "is_liked",
             "is_saved",
             "created_at",
+            "location",
         ]

@@ -20,7 +20,8 @@ class CreateHotelSerializer(serializers.ModelSerializer):
             "phone_number",
             "email",
             "description",
-            "location"
+            "location",
+            "location_link",
         ]
 
 
@@ -34,6 +35,7 @@ class HotelProfileSerializer(serializers.ModelSerializer):
             "phone_number",
             "avatar",
             "location",
+            "location_link",
         ]
 
     def update(self, instance, validated_data):

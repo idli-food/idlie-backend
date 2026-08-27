@@ -54,6 +54,7 @@ class Command(BaseCommand):
                         "city": CITY,
                         "phone_number": phone,
                         "location": location,
+                        "location_link": (row.get("google_maps_url") or "").strip() or None,
                     },
                 )
                 if was_created:

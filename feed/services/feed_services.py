@@ -2,6 +2,17 @@ from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
 from django.db.models import Avg
 from post.models import Post
+from hotel.models import Hotel
+
+
+def get_hotel_location_link(hotel_id):
+    if not hotel_id:
+        return None
+    return (
+        Hotel.objects.filter(pk=hotel_id)
+        .values_list("location_link", flat=True)
+        .first()
+    )
 
 
 def get_feed_by_hotel_rating(limit=20):

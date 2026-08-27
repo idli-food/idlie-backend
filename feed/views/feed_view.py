@@ -23,8 +23,11 @@ class FeedView(APIView):
 
         # radius = float(request.GET.get("radius", 10))
 
+        platform = request.GET.get("platform")
+
         posts = get_feed_by_hotel_rating()
 
-        serializer = FeedPostSerializer(posts, many=True, context={'request': request})
+        serializer = FeedPostSerializer(posts, many=True, context={'request': request, 'platform': platform})
+        print("Serialized feed data:", serializer.data)  # Debugging line
 
         return Response(serializer.data)
