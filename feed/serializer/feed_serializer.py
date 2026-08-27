@@ -24,6 +24,12 @@ class FeedPostSerializer(serializers.ModelSerializer):
     avatar = serializers.SerializerMethodField()
     location = serializers.SerializerMethodField()
     is_liked = serializers.SerializerMethodField()
+    hotel_name = serializers.SerializerMethodField()
+
+    def get_hotel_name(self, obj):
+        if obj.hotel_id:
+            return obj.hotel.name
+        return None
 
     def get_location(self, obj):
         if self.context.get('platform') == 'web':
@@ -41,10 +47,10 @@ class FeedPostSerializer(serializers.ModelSerializer):
         return None
 
     def get_avatar(self, obj):
-        if obj.hotel_id:
-            return None
         if obj.user_id and hasattr(obj.user, "profile"):
             return FeedUserProfileSerilizer(obj.user.profile).data.get("avatar")
+        if obj.hotel_id:
+            return None
         return None
 
     def get_is_liked(self, obj):
@@ -78,4 +84,5 @@ class FeedPostSerializer(serializers.ModelSerializer):
             "is_saved",
             "created_at",
             "location",
+            "hotel_name",
         ]
