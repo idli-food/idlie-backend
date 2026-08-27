@@ -31,13 +31,18 @@ class   CreatePostSerializer(serializers.ModelSerializer):
 
         read_only_fields = [
             "user",
-            "hotel",
             "media_url",
             "like_count",
             "avg_rating",
             "rating_count",
             "composite_score",
         ]
+
+    def validate(self, attrs):
+        principal = self.context["request"].user
+        if not isinstance(principal, Hotel) and not attrs.get("hotel"):
+            raise serializers.ValidationError({"hotel": "This field is required."})
+        return attrs
 
     def create(self, validated_data):
         principal = self.context["request"].user

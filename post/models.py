@@ -86,10 +86,10 @@ class Post(models.Model):
         constraints = [
             models.CheckConstraint(
                 condition=(
-                    models.Q(user__isnull=False, hotel__isnull=True)
-                    | models.Q(user__isnull=True, hotel__isnull=False)
+                    models.Q(user__isnull=False)
+                    | models.Q(hotel__isnull=False)
                 ),
-                name='post_author_is_exactly_one_of_user_or_hotel',
+                name='post_has_user_or_hotel',
             )
         ]
 

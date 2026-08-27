@@ -16,6 +16,7 @@ class CreatePostView(APIView):
     def post(self, request):
 
         try:
+            print("Request data:", request.data)
 
             serializer = CreatePostSerializer(
                 data=request.data,
@@ -26,9 +27,11 @@ class CreatePostView(APIView):
 
             if serializer.is_valid():
                 post = serializer.save()
+                print("Post created successfully:", post)
 
                 post_output = CreatePostSerializer(post).data
                 post_service.set_media_url(post)
+                post_service.set_post_location_from_hotel(post)
                 if post_output['media_type'] == 'video':
                     generate_thumbnail.delay(post_id=post.id)
                 elif post_output['media_type'] == 'image':

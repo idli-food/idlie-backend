@@ -50,6 +50,12 @@ def set_thumbnail_url_image(post_id):
         return None
 
 
+def set_post_location_from_hotel(post):
+    if not post.hotel_id or post.hotel.location is None:
+        return None
+    Post.objects.filter(id=post.id).update(location=post.hotel.location)
+
+
 def update_post_comment_count(post_id):
     total_comments = Comments.objects.filter(post_id = post_id).count()
     Post.objects.filter(id = post_id).update(comment_count = total_comments)
