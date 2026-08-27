@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+from django.db.models import Avg
 
 from user.models import User
 from hotel.models import Hotel, HotelRating, HotelReview
@@ -11,6 +12,32 @@ from core.utils.api_response import success_response, error_response
 
 class CreateHotelRatingView(APIView):
     permission_classes = [IsAuthenticated]
+
+    def get(self, request, hotel_id):
+        try:
+            hotel = Hotel.objects.get(id=hotel_id)
+        except Hotel.DoesNotExist:
+            return error_response(
+                message="Hotel not found",
+                code=status.HTTP_404_NOT_FOUND
+            )
+
+        average_rating = hotel.ratings.aggregate(average=Avg("rating_count"))["average"]
+
+        user_rating = None
+        if isinstance(request.user, User):
+            rating = hotel.ratings.filter(user=request.user).first()
+            if rating is not None:
+                user_rating = HotelRatingSerializer(rating).data
+
+        return success_response(
+            message="Ratings fetched successfully",
+            data={
+                "average_rating": average_rating,
+                "rating_count": hotel.ratings.count(),
+                "user_rating": user_rating,
+            }
+        )
 
     def post(self, request, hotel_id):
         if not isinstance(request.user, User):
@@ -65,6 +92,31 @@ class CreateHotelRatingView(APIView):
 
 class CreateHotelReviewView(APIView):
     permission_classes = [IsAuthenticated]
+
+    def get(self, request, hotel_id):
+        try:
+            hotel = Hotel.objects.get(id=hotel_id)
+        except Hotel.DoesNotExist:
+            return error_response(
+                message="Hotel not found",
+                code=status.HTTP_404_NOT_FOUND
+            )
+
+        reviews = hotel.reviews.all().order_by("-created_at")
+
+        user_review = None
+        if isinstance(request.user, User):
+            review = reviews.filter(user=request.user).first()
+            if review is not None:
+                user_review = HotelReviewSerializer(review).data
+
+        return success_response(
+            message="Reviews fetched successfully",
+            data={
+                "reviews": HotelReviewSerializer(reviews, many=True).data,
+                "user_review": user_review,
+            }
+        )
 
     def post(self, request, hotel_id):
         if not isinstance(request.user, User):
