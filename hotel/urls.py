@@ -4,6 +4,7 @@ from .views.create_hotel_view import CreateHotelView
 from .authentication.views.signup import SignupView
 from .views.hotel_test_view import HotelTestView
 from .views.hotel_profile_view import GetHotelProfileView
+from .views.hotel_list_view import ListHotelsView
 from .authentication.views.validate_otp import ValidateOTPView
 from .authentication.views.login import SendLoginOTPView,ValidateLoginOTPView
 from .authentication.views.token_refresh import RefreshAccessToken
@@ -25,6 +26,7 @@ urlpatterns = [
     path('refresh-token/', RefreshAccessToken.as_view(), name='refresh-token'),
     path("validate-login-otp/", ValidateLoginOTPView.as_view(), name="validate-login-otp"),
     path("profile/", GetHotelProfileView.as_view(), name="hotel-profile"),
+    path("list/", ListHotelsView.as_view(), name="hotel-list"),
     path("avatar-upload-url/", UploadProfilePictureURLView.as_view(), name="hotel-avatar-upload-url"),
     path("menu/create/", CreateMenuView.as_view(), name="create-menu"),
     path("menu/<int:pk>/", MenuDetailView.as_view(), name="menu-detail"),

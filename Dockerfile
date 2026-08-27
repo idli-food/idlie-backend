@@ -57,6 +57,7 @@ RUN uv sync --frozen --no-dev
 # Copy project files
 # -----------------------------
 COPY . .
+RUN chmod +x /app/startup.sh
 
 # -----------------------------
 # Expose app port
@@ -64,6 +65,6 @@ COPY . .
 EXPOSE 8000
 
 # -----------------------------
-# Start Django with Gunicorn
+# Bootstrap (migrate, superuser, load hotels) then start Gunicorn
 # -----------------------------
-CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["./startup.sh"]
