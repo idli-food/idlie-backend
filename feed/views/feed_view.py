@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from ..services.feed_services import get_feed
+from ..services.feed_services import get_feed_by_hotel_rating
 from ..serializer.feed_serializer import FeedPostSerializer
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -12,22 +12,18 @@ class FeedView(APIView):
 
     def get(self, request):
 
-        lat = request.GET.get("lat")
-        lon = request.GET.get("lon")
+        # lat = request.GET.get("lat")
+        # lon = request.GET.get("lon")
 
-        if lat is None or lon is None:
-            return Response(
-                {"error": "lat and lon are required"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        # if lat is None or lon is None:
+        #     return Response(
+        #         {"error": "lat and lon are required"},
+        #         status=status.HTTP_400_BAD_REQUEST
+        #     )
 
-        radius = float(request.GET.get("radius", 10))
+        # radius = float(request.GET.get("radius", 10))
 
-        posts = get_feed(
-            float(lat),
-            float(lon),
-            radius
-        )
+        posts = get_feed_by_hotel_rating()
 
         serializer = FeedPostSerializer(posts, many=True, context={'request': request})
 

@@ -22,7 +22,6 @@ class FeedPostSerializer(serializers.ModelSerializer):
     avatar = serializers.SerializerMethodField()
     is_liked = serializers.SerializerMethodField()
     is_saved = serializers.SerializerMethodField()
-    location = serializers.SerializerMethodField()
 
     def get_user(self, obj):
         if obj.hotel_id:
@@ -68,17 +67,4 @@ class FeedPostSerializer(serializers.ModelSerializer):
             "is_liked",
             "is_saved",
             "created_at",
-            "location"
         ]
-    def get_location(self,obj):
-        if not obj:
-            return None
-        
-        point = str(obj.location)
-        coords = point.replace("SRID=4326;POINT (", "").replace(")", "")
-        longitude, latitude = map(float,coords.split())
-        return {
-            "latitude" : latitude,
-            "longitude" : longitude
-        }
-    
