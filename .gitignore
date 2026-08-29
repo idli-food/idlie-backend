@@ -42,9 +42,6 @@ dist/
 # Python version
 .python-version
 
-# Lock files (decide based on your workflow)
-uv.lock
-
 # Coverage / testing
 .coverage
 htmlcov/
