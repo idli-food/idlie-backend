@@ -14,15 +14,16 @@ class JWTAuthentication(BaseAuthentication):
     def authenticate(self, request):
         auth_header = request.headers.get("Authorization")
 
-        if not auth_header:
-            return None
+        if auth_header:
+            prefix, _, token = auth_header.partition(" ")
+            if prefix.lower() != "bearer" or not token:
+                raise AuthenticationFailed("Invalid token prefix")
+        else:
+            token = request.COOKIES.get("access_token")
+            if not token:
+                return None
 
         try:
-            prefix, token = auth_header.split()
-
-            if prefix.lower() != "bearer":
-                raise AuthenticationFailed("Invalid token prefix")
-
             payload = jwt.decode(
                 token,
                 settings.JWT_SECRET,

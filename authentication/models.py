@@ -20,4 +20,11 @@ class DevOTP(models.Model):
 class OTPrequest(models.Model):
     phonenumber = models.CharField(blank=False,null= False)
     request_id = models.CharField(blank=False,null= False)
+
+
+class GoogleIdentity(models.Model):
+    user = models.OneToOneField("user.User", on_delete=models.CASCADE, related_name="google_identity")
+    google_sub = models.CharField(max_length=255, unique=True)
+    email = models.EmailField()
+    created_at = models.DateTimeField(auto_now_add=True)
     
