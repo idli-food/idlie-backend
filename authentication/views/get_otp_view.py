@@ -15,16 +15,9 @@ class SendOtpView(APIView):
         if not is_phone_number_available(phone_number):
             return error_response(message="phone number already taken",data="login")
         response = OTPServices.generate_opt(phone_number)
-        if response["otp"] == None:
-            return error_response(message="Unexpected error occured")
-        print(response["otp"])
-        phone_number_obj = DevOTP.objects.create(
-        phonenumber = phone_number[3:],
-        otp = response["otp"]
-        )
-
+        print(response["status"])
         
         
-        return success_response(message="otp send",request_id=response["request_id"])
+        return success_response(message="otp send")
 
         

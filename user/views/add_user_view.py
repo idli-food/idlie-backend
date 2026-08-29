@@ -27,8 +27,8 @@ class AddUserView(APIView):
                     "status": "success",
                     "message": "User created successfully",
                     "data": response_serializer.data,
-                    "access" : access_token,
-                    "refresh" : refresh_token,
+                    "access_token" : access_token,
+                    "refresh_token" : refresh_token,
                 },
                 status=status.HTTP_201_CREATED
             )

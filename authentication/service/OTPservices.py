@@ -1,6 +1,12 @@
 
+from twilio.rest import Client
+from django.conf import settings
 
 import re
+
+
+
+client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
 
 
 class OTPServices:
@@ -12,10 +18,12 @@ class OTPServices:
     
     @classmethod
     def generate_opt(cls,phone_number):
-        return({
-            "otp" : 221180,
-            "request_id" : 20
-        })
+        verification = client.verify.v2.services(
+            settings.TWILIO_VERIFY_SERVICE_SID
+        ).verifications.create(to=phone_number, channel="sms")
+        return {
+            "status": verification.status,
+        }
     
     @classmethod
     def validate_OTP(cls,otp):
