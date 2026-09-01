@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.gis.db import models as gis_models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from rest_framework_gis.fields import GeometryField
@@ -15,6 +16,7 @@ class Hotel(models.Model):
     address = models.TextField()
     city = models.CharField(max_length=100)
     phone_number = models.CharField(max_length=20, blank=True, null=True)
+    password = models.CharField(max_length=128, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -26,6 +28,12 @@ class Hotel(models.Model):
     @property
     def is_authenticated(self):
         return True
+
+    def set_password(self, raw_password):
+        self.password = make_password(raw_password)
+
+    def check_password(self, raw_password):
+        return bool(self.password) and check_password(raw_password, self.password)
 
     def __str__(self):
         return self.name

@@ -1,12 +1,10 @@
 from django.urls import path
 
 from .views.create_hotel_view import CreateHotelView
-from .authentication.views.signup import SignupView
 from .views.hotel_test_view import HotelTestView
 from .views.hotel_profile_view import GetHotelProfileView
 from .views.hotel_list_view import ListHotelsView
-from .authentication.views.validate_otp import ValidateOTPView
-from .authentication.views.login import SendLoginOTPView,ValidateLoginOTPView
+from .authentication.views.login import HotelLoginView
 from .authentication.views.token_refresh import RefreshAccessToken
 from .views.hotel_service_views import UploadProfilePictureURLView
 from .menu.views.create_menu import CreateMenuView
@@ -20,11 +18,8 @@ from .menu.views.variant_detail import FoodItemVariantDetailView
 from .views.rating_view import CreateHotelRatingView, CreateHotelReviewView
 urlpatterns = [
     path("create/", CreateHotelView.as_view(), name="create-hotel"),
-    path("signup/", SignupView.as_view(), name="signup"),
-    path("validate-otp/", ValidateOTPView.as_view(), name="validate-otp"),
-    path("login-otp/", SendLoginOTPView.as_view(), name="login-otp"),
+    path("login/", HotelLoginView.as_view(), name="hotel-login"),
     path('refresh-token/', RefreshAccessToken.as_view(), name='refresh-token'),
-    path("validate-login-otp/", ValidateLoginOTPView.as_view(), name="validate-login-otp"),
     path("profile/<int:hotel_id>/", GetHotelProfileView.as_view(), name="hotel-profile"),
     path("list/", ListHotelsView.as_view(), name="hotel-list"),
     path("avatar-upload-url/", UploadProfilePictureURLView.as_view(), name="hotel-avatar-upload-url"),

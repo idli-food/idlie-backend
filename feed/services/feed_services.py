@@ -3,6 +3,8 @@ from django.contrib.gis.measure import D
 from post.models import Post
 from hotel.models import Hotel
 
+FEED_RADIUS_KM = 30
+
 
 def get_hotel_location_link(hotel_id):
     if not hotel_id:
@@ -14,32 +16,21 @@ def get_hotel_location_link(hotel_id):
     )
 
 
-def get_feed_by_post_rating(limit=20):
+def get_feed_by_post_rating(lat=None, lon=None, limit=20):
     posts = (
         Post.objects.filter(
             status=Post.Status.PUBLISHED,
             hotel__isnull=False,
         )
         .prefetch_related("likes", "saved", "rating")
-        .order_by("-avg_rating", "-rating_count", "-created_at")[:limit]
+        .order_by("-avg_rating", "-rating_count", "-created_at")
     )
-    return posts
 
+    if lat is not None and lon is not None:
+        user_location = Point(lon, lat, srid=4326)
+        return posts.filter(
+            location__distance_lte=(user_location, D(km=FEED_RADIUS_KM))
+        )
 
-# def get_feed(lat,lon,radius_km=30):
-#     user_location = Point(lon,lat,srid=4326)
-
-#     print(user_location)
-#     posts = (
-#         Post.objects.filter(
-#             status=Post.Status.PUBLISHED,
-#             location__distance_lte=(
-#                 user_location,
-#                 D(km=radius_km)
-#             )
-#         )
-#         .prefetch_related('likes')
-#         .order_by("composite_score")[:20]
-#     )
-#     return posts
+    return posts[:limit]
 

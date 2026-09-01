@@ -12,20 +12,21 @@ class FeedView(APIView):
 
     def get(self, request):
 
-        # lat = request.GET.get("lat")
-        # lon = request.GET.get("lon")
+        lat = request.GET.get("lat")
+        lon = request.GET.get("lon")
 
-        # if lat is None or lon is None:
-        #     return Response(
-        #         {"error": "lat and lon are required"},
-        #         status=status.HTTP_400_BAD_REQUEST
-        #     )
-
-        # radius = float(request.GET.get("radius", 10))
+        try:
+            lat = float(lat) if lat is not None else None
+            lon = float(lon) if lon is not None else None
+        except ValueError:
+            return Response(
+                {"error": "Invalid lat or lon"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         platform = request.GET.get("platform")
 
-        posts = get_feed_by_post_rating()
+        posts = get_feed_by_post_rating(lat, lon)
 
         serializer = FeedPostSerializer(posts, many=True, context={'request': request, 'platform': platform})
         print("Serialized feed data:", serializer.data)  # Debugging line

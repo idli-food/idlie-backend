@@ -22,7 +22,8 @@ class FeedUserProfileSerilizer(serializers.ModelSerializer):
 class FeedPostSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
     avatar = serializers.SerializerMethodField()
-    location = serializers.SerializerMethodField()
+    location_link = serializers.SerializerMethodField()
+    location_point = serializers.SerializerMethodField()
     is_liked = serializers.SerializerMethodField()
     my_rating = serializers.SerializerMethodField()
     hotel_name = serializers.SerializerMethodField()
@@ -32,9 +33,10 @@ class FeedPostSerializer(serializers.ModelSerializer):
             return obj.hotel.name
         return None
 
-    def get_location(self, obj):
-        if self.context.get('platform') == 'web':
-            return get_hotel_location_link(obj.hotel_id)
+    def get_location_link(self, obj):
+        return get_hotel_location_link(obj.hotel_id)
+
+    def get_location_point(self, obj):
         if obj.location:
             return GeometryField().to_representation(obj.location)
         return None
@@ -92,6 +94,7 @@ class FeedPostSerializer(serializers.ModelSerializer):
             "is_saved",
             "my_rating",
             "created_at",
-            "location",
+            "location_link",
+            "location_point",
             "hotel_name",
         ]
