@@ -12,6 +12,7 @@ class UserAdmin(admin.ModelAdmin):
         'phone',
         'first_name',
         'last_name',
+        'is_staff',
         'created_at',
     )
 
@@ -22,7 +23,7 @@ class UserAdmin(admin.ModelAdmin):
         'last_name',
     )
 
-    list_filter = ('created_at',)
+    list_filter = ('is_staff', 'created_at')
 
     ordering = ('-created_at',)
 
@@ -35,6 +36,11 @@ class UserAdmin(admin.ModelAdmin):
                 'phone',
                 'first_name',
                 'last_name',
+            )
+        }),
+        ('Permissions', {
+            'fields': (
+                'is_staff',
             )
         }),
     )
