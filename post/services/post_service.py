@@ -1,5 +1,5 @@
-from django.db.models import F
-from ..models import Post, Like, Comments, Saved
+from django.db.models import F, Avg
+from ..models import Post, Like, Comments, Saved, Ratings
 from django.conf import settings
 from hotel.models import Hotel
 import boto3
@@ -25,6 +25,19 @@ def check_post_availablity(post_id):
 def update_post_like_count(post_id):
     total_like_count = Like.objects.filter(post_id=post_id).count()
     Post.objects.filter(id=post_id).update(like_count=total_like_count)
+
+
+def update_post_rating_stats(post_id):
+    agg = Ratings.objects.filter(post_id=post_id).aggregate(avg=Avg("stars"))
+    Post.objects.filter(id=post_id).update(
+        avg_rating=agg["avg"] or 0.0,
+        rating_count=Ratings.objects.filter(post_id=post_id).count(),
+    )
+
+
+def delete_post_rating(post_id, user_id):
+    deleted, _ = Ratings.objects.filter(post_id=post_id, user_id=user_id).delete()
+    return deleted > 0
 
 
 def delete_post_like(post_id, user_id):

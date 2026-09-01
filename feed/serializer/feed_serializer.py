@@ -24,6 +24,7 @@ class FeedPostSerializer(serializers.ModelSerializer):
     avatar = serializers.SerializerMethodField()
     location = serializers.SerializerMethodField()
     is_liked = serializers.SerializerMethodField()
+    my_rating = serializers.SerializerMethodField()
     hotel_name = serializers.SerializerMethodField()
 
     def get_hotel_name(self, obj):
@@ -64,6 +65,13 @@ class FeedPostSerializer(serializers.ModelSerializer):
         if request and request.user.is_authenticated:
             return obj.saved.filter(user = request.user).exists()
 
+    def get_my_rating(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            rating = obj.rating.filter(user=request.user).first()
+            return rating.stars if rating else None
+        return None
+
     class Meta:
         model = Post
         fields = [
@@ -82,6 +90,7 @@ class FeedPostSerializer(serializers.ModelSerializer):
             "composite_score",
             "is_liked",
             "is_saved",
+            "my_rating",
             "created_at",
             "location",
             "hotel_name",

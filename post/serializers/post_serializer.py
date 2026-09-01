@@ -1,7 +1,7 @@
 from rest_framework_gis.fields import GeometryField
 from rest_framework import serializers
 from ..models import Post
-from ..models import Like, Comments, Saved
+from ..models import Like, Comments, Saved, Ratings
 from user.serivices.user_service import get_avatar_url
 from hotel.models import Hotel
 
@@ -71,6 +71,14 @@ class PostLikeSerializer(serializers.ModelSerializer):
             "user",
             "post"
         ]
+class PostRatingSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Ratings
+        fields = [
+            "stars"
+        ]
+
 class PostCommentSerializer(serializers.ModelSerializer):
 
     class Meta:

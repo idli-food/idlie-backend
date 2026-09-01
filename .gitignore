@@ -50,6 +50,7 @@ htmlcov/
 # Misc
 *.sqlite3
 CLAUDE.md
+TODO.md
 
 # Local data dumps
 hotels.csv
