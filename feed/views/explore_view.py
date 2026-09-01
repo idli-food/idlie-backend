@@ -1,5 +1,5 @@
 from rest_framework.views import APIView
-from ..services.explore_services import get_explore_page_content
+from ..services.explore_services import get_explore_page_content, group_posts_by_rating
 from ..serializer.explore_serializer import ExplorePageSerializer
 from feed.serializer.feed_serializer import FeedPostSerializer
 from rest_framework import status
@@ -15,15 +15,15 @@ class ExplorePageView(APIView):
         lat = request.GET.get("lat")
         lon = request.GET.get("lon")
 
-        if lat is None or lon is None:
-            return error_response(
-                message="lat and lon are required",
-                code=status.HTTP_400_BAD_REQUEST
-            )
-
         try:
             radius = float(request.GET.get("radius", 10))
-            posts = get_explore_page_content(float(lat), float(lon), radius)
+            query = (request.GET.get("q") or "").strip() or None
+            posts = get_explore_page_content(
+                float(lat) if lat is not None else None,
+                float(lon) if lon is not None else None,
+                radius,
+                query,
+            )
 
             if request.query_params.get("view") == "feed":
                 start_id = request.query_params.get("start_id")
@@ -32,13 +32,22 @@ class ExplorePageView(APIView):
                     idx = next((i for i, p in enumerate(posts) if p.id == int(start_id)), None)
                     if idx is not None:
                         posts = posts[idx:] + posts[:idx]
-                serializer = FeedPostSerializer(posts, many=True, context={'request': request})
+                serializer = FeedPostSerializer(
+                    posts,
+                    many=True,
+                    context={'request': request, 'platform': request.GET.get("platform")},
+                )
+                data = serializer.data
             else:
-                serializer = ExplorePageSerializer(posts, many=True)
+                buckets = group_posts_by_rating(posts)
+                data = {
+                    key: ExplorePageSerializer(bucket, many=True).data
+                    for key, bucket in buckets.items()
+                }
 
             return success_response(
                 message="explore",
-                data=serializer.data
+                data=data
             )
 
         except ValueError:
