@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from ..services.feed_services import get_feed_by_hotel_rating
+from ..services.feed_services import get_feed_by_post_rating
 from ..serializer.feed_serializer import FeedPostSerializer
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -25,7 +25,7 @@ class FeedView(APIView):
 
         platform = request.GET.get("platform")
 
-        posts = get_feed_by_hotel_rating()
+        posts = get_feed_by_post_rating()
 
         serializer = FeedPostSerializer(posts, many=True, context={'request': request, 'platform': platform})
         print("Serialized feed data:", serializer.data)  # Debugging line

@@ -1,6 +1,5 @@
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
-from django.db.models import Avg
 from post.models import Post
 from hotel.models import Hotel
 
@@ -15,15 +14,14 @@ def get_hotel_location_link(hotel_id):
     )
 
 
-def get_feed_by_hotel_rating(limit=20):
+def get_feed_by_post_rating(limit=20):
     posts = (
         Post.objects.filter(
             status=Post.Status.PUBLISHED,
             hotel__isnull=False,
         )
-        .annotate(hotel_avg_rating=Avg("hotel__ratings__rating_count"))
-        .prefetch_related("likes")
-        .order_by("-hotel_avg_rating")[:limit]
+        .prefetch_related("likes", "saved", "rating")
+        .order_by("-avg_rating", "-rating_count", "-created_at")[:limit]
     )
     return posts
 
