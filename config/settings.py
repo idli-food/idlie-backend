@@ -65,6 +65,7 @@ JWT_SECRET = os.getenv("SECRET_KEY")
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 GOOGLE_OAUTH_REDIRECT_URI = os.getenv("GOOGLE_OAUTH_REDIRECT_URI")
+GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
 FRONTEND_URL = os.getenv("FRONTEND_URL")
 
 # Auth cookies. Cross-site frontend/API (different domains) needs "None"; a
