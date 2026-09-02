@@ -5,6 +5,8 @@ from .views.hotel_test_view import HotelTestView
 from .views.hotel_profile_view import GetHotelProfileView
 from .views.hotel_list_view import ListHotelsView
 from .authentication.views.login import HotelLoginView
+from .authentication.views.signup import SignupView
+from .authentication.views.validate_otp import ValidateOTPView
 from .authentication.views.token_refresh import RefreshAccessToken
 from .views.hotel_service_views import UploadProfilePictureURLView
 from .menu.views.create_menu import CreateMenuView
@@ -18,6 +20,8 @@ from .menu.views.variant_detail import FoodItemVariantDetailView
 from .views.rating_view import CreateHotelRatingView, CreateHotelReviewView
 urlpatterns = [
     path("create/", CreateHotelView.as_view(), name="create-hotel"),
+    path("signup/", SignupView.as_view(), name="hotel-signup"),
+    path("validate-otp/", ValidateOTPView.as_view(), name="hotel-validate-otp"),
     path("login/", HotelLoginView.as_view(), name="hotel-login"),
     path('refresh-token/', RefreshAccessToken.as_view(), name='refresh-token'),
     path("profile/<int:hotel_id>/", GetHotelProfileView.as_view(), name="hotel-profile"),

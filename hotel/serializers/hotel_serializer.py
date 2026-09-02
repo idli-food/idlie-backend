@@ -9,6 +9,7 @@ from post.services import post_service
 
 class CreateHotelSerializer(serializers.ModelSerializer):
     location = GeometryField(required=False)
+    password = serializers.CharField(write_only=True, min_length=6)
 
     class Meta:
         model = Hotel
@@ -22,7 +23,15 @@ class CreateHotelSerializer(serializers.ModelSerializer):
             "description",
             "location",
             "location_link",
+            "password",
         ]
+
+    def create(self, validated_data):
+        password = validated_data.pop("password")
+        hotel = Hotel(**validated_data)
+        hotel.set_password(password)
+        hotel.save()
+        return hotel
 
 
 class HotelProfileSerializer(serializers.ModelSerializer):
