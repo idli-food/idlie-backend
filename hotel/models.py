@@ -24,6 +24,7 @@ class Hotel(models.Model):
     location = gis_models.PointField(geography=True, null=True, blank=True)
     avatar = models.URLField(blank=True, null=True)
     location_link = models.URLField(blank=True, null=True)
+    is_active = models.BooleanField(default=True)
 
     @property
     def is_authenticated(self):
