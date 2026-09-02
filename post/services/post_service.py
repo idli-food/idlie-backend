@@ -1,5 +1,5 @@
 from django.db.models import F, Avg
-from ..models import Post, Like, Comments, Saved, Ratings
+from ..models import Post, Like, Comments, Saved, PostRating
 from django.conf import settings
 from hotel.models import Hotel
 import boto3
@@ -28,15 +28,15 @@ def update_post_like_count(post_id):
 
 
 def update_post_rating_stats(post_id):
-    agg = Ratings.objects.filter(post_id=post_id).aggregate(avg=Avg("stars"))
+    agg = PostRating.objects.filter(post_id=post_id).aggregate(avg=Avg("score"))
     Post.objects.filter(id=post_id).update(
         avg_rating=agg["avg"] or 0.0,
-        rating_count=Ratings.objects.filter(post_id=post_id).count(),
+        rating_count=PostRating.objects.filter(post_id=post_id).count(),
     )
 
 
 def delete_post_rating(post_id, user_id):
-    deleted, _ = Ratings.objects.filter(post_id=post_id, user_id=user_id).delete()
+    deleted, _ = PostRating.objects.filter(post_id=post_id, user_id=user_id).delete()
     return deleted > 0
 
 

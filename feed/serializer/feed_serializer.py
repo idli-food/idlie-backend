@@ -4,6 +4,7 @@ from post.models import Post
 from ..services.fetch_media import get_pre_signed_url
 from ..services.feed_services import get_hotel_location_link
 from user.models import User,UserProfile
+from post.serializers.post_serializer import PostRatingSerializer
 
 class FeedUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -25,7 +26,8 @@ class FeedPostSerializer(serializers.ModelSerializer):
     location_link = serializers.SerializerMethodField()
     location_point = serializers.SerializerMethodField()
     is_liked = serializers.SerializerMethodField()
-    my_rating = serializers.SerializerMethodField()
+    is_mine = serializers.SerializerMethodField()
+    ratings = PostRatingSerializer(many=True, read_only=True)
     hotel_name = serializers.SerializerMethodField()
 
     def get_hotel_name(self, obj):
@@ -67,12 +69,11 @@ class FeedPostSerializer(serializers.ModelSerializer):
         if request and request.user.is_authenticated:
             return obj.saved.filter(user = request.user).exists()
 
-    def get_my_rating(self, obj):
+    def get_is_mine(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
-            rating = obj.rating.filter(user=request.user).first()
-            return rating.stars if rating else None
-        return None
+            return obj.user_id == getattr(request.user, 'id', None) and isinstance(request.user, User)
+        return False
 
     class Meta:
         model = Post
@@ -92,7 +93,8 @@ class FeedPostSerializer(serializers.ModelSerializer):
             "composite_score",
             "is_liked",
             "is_saved",
-            "my_rating",
+            "is_mine",
+            "ratings",
             "created_at",
             "location_link",
             "location_point",

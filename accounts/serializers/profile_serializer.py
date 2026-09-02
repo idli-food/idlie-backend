@@ -37,7 +37,7 @@ class ProfileViewSerializer(serializers.ModelSerializer):
         return 10000
 
     def get_total_rating(self, obj):
-        return obj.user.rating.count()
+        return obj.user.post_ratings.values('post').distinct().count()
 
     def get_total_likes(self, obj):
         return obj.user.likes.count()

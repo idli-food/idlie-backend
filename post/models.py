@@ -123,30 +123,41 @@ class Like(models.Model):
             )
         ]
 
-class Ratings(models.Model):
+class PostRating(models.Model):
+    class Category(models.TextChoices):
+        FOOD = 'food', 'Food'
+        SERVICE = 'service', 'Service'
+        CLEANLINESS = 'cleanliness', 'Cleanliness'
+        VALUE = 'value', 'Value'
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='rating'
+        related_name='post_ratings'
     )
     post = models.ForeignKey(
         Post,
         on_delete=models.CASCADE,
-        related_name='rating'
+        related_name='ratings'
     )
-    stars = models.SmallIntegerField(
+    category = models.CharField(
+        max_length=20,
+        choices=Category.choices
+    )
+    score = models.SmallIntegerField(
         validators=[
             MinValueValidator(1),
             MaxValueValidator(5)
         ]
     )
+    review = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['user', 'post'],
-                name='unique_user_post_rating'
+                fields=['post', 'category'],
+                name='unique_post_category_rating'
             )
         ]
 
