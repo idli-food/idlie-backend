@@ -10,6 +10,7 @@ from .authentication.views.validate_otp import ValidateOTPView
 from .authentication.views.token_refresh import RefreshAccessToken
 from .views.hotel_service_views import UploadProfilePictureURLView
 from .menu.views.create_menu import CreateMenuView
+from .menu.views.menu_list import MenuListView
 from .menu.views.menu_detail import MenuDetailView
 from .menu.views.create_category import CreateMenuCategoryView
 from .menu.views.category_detail import MenuCategoryDetailView
@@ -27,6 +28,7 @@ urlpatterns = [
     path("profile/<int:hotel_id>/", GetHotelProfileView.as_view(), name="hotel-profile"),
     path("list/", ListHotelsView.as_view(), name="hotel-list"),
     path("avatar-upload-url/", UploadProfilePictureURLView.as_view(), name="hotel-avatar-upload-url"),
+    path("menu/", MenuListView.as_view(), name="menu-list"),
     path("menu/create/", CreateMenuView.as_view(), name="create-menu"),
     path("menu/<int:pk>/", MenuDetailView.as_view(), name="menu-detail"),
     path("menu/<int:menu_id>/category/create/", CreateMenuCategoryView.as_view(), name="create-menu-category"),

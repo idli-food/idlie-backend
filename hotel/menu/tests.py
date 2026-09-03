@@ -57,6 +57,26 @@ class MenuAPITestCase(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_list_menus_scoped_to_hotel(self):
+        menu = Menu.objects.create(hotel=self.hotel, name="Breakfast")
+        category = MenuCategory.objects.create(menu=menu, name="Tiffin", display_order=1)
+        FoodItem.objects.create(category=category, name="Idli", food_type="veg")
+        FoodItem.objects.create(category=category, name="Vada", food_type="veg")
+        Menu.objects.create(hotel=self.other_hotel, name="Other Menu")
+
+        response = self.client.get("/hotel/menu/", **self.headers)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.data["data"]
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["name"], "Breakfast")
+        self.assertEqual(data[0]["category_count"], 1)
+        self.assertEqual(data[0]["item_count"], 2)
+
+    def test_list_menus_requires_auth(self):
+        response = self.client.get("/hotel/menu/")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
     def test_get_menu_detail_with_nested_data(self):
         menu = Menu.objects.create(hotel=self.hotel, name="Breakfast")
         category = MenuCategory.objects.create(menu=menu, name="Tiffin", display_order=1)
