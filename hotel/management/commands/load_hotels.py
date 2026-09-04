@@ -1,4 +1,5 @@
 import csv
+import re
 from pathlib import Path
 
 from django.contrib.gis.geos import Point
@@ -7,6 +8,15 @@ from django.core.management.base import BaseCommand, CommandError
 from ...models import Hotel
 
 CITY = "Trivandrum"
+
+
+def format_phone(phone):
+    digits = re.sub(r"\D", "", phone)
+    if not digits:
+        return None
+    if digits.startswith("91"):
+        digits = digits[2:]
+    return f"+91{digits}"
 
 
 class Command(BaseCommand):
@@ -37,7 +47,7 @@ class Command(BaseCommand):
                     skipped += 1
                     continue
 
-                phone = (row.get("phone") or "").strip() or None
+                phone = format_phone((row.get("phone") or "").strip())
 
                 location = None
                 lat, lng = row.get("latitude"), row.get("longitude")
