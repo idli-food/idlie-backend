@@ -150,7 +150,7 @@ class PostRating(models.Model):
             MaxValueValidator(5)
         ]
     )
-    review = models.CharField(max_length=100)
+    review = models.CharField(max_length=100, blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
