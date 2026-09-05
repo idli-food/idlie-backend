@@ -13,9 +13,7 @@ class PostMediaInline(admin.TabularInline):
 class PostAdmin(admin.ModelAdmin):
     list_display = (
         "id",
-        "title",
         "user",
-        "food_spot",
         "status",
         "like_count",
         "avg_rating",
@@ -29,10 +27,8 @@ class PostAdmin(admin.ModelAdmin):
     )
 
     search_fields = (
-        "title",
         "description",
         "user__display_name",
-        "food_spot__name",
     )
 
     readonly_fields = (
@@ -43,7 +39,7 @@ class PostAdmin(admin.ModelAdmin):
         "created_at",
     )
 
-    autocomplete_fields = ("user", "food_spot")
+    autocomplete_fields = ("user",)
 
     ordering = ("-created_at",)
 
@@ -53,9 +49,6 @@ class PostAdmin(admin.ModelAdmin):
         ("Basic Info", {
             "fields": (
                 "user",
-                "food_spot",
-                "foodspot_tag",
-                "title",
                 "description",
             )
         }),

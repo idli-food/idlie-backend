@@ -2,7 +2,6 @@ import uuid
 from django.db import models
 from django.contrib.gis.db import models as gis_models
 from django.core.validators import MinValueValidator, MaxValueValidator
-from foodspot.models import FoodSpot
 from user.models import User
 from hotel.models import Hotel
 
@@ -29,16 +28,6 @@ class Post(models.Model):
         blank=True,
     )
 
-    food_spot = models.ForeignKey(
-        FoodSpot,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='posts'
-    )
-    foodspot_tag = models.CharField(blank=True,null=False)
-
-    title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
 
     status = models.CharField(
@@ -74,7 +63,7 @@ class Post(models.Model):
         return self.user or self.hotel
 
     def __str__(self):
-        return self.title
+        return f"Post {self.id}"
 
 
 class PostMedia(models.Model):

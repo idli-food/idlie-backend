@@ -80,7 +80,6 @@ class FeedPostSerializer(serializers.ModelSerializer):
         model = Post
         fields = [
             "id",
-            "title",
             "user",
             "avatar",
             "description",

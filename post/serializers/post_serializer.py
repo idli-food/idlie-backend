@@ -47,8 +47,6 @@ class   CreatePostSerializer(serializers.ModelSerializer):
         fields = [
             "user",
             "hotel",
-            "food_spot",
-            "title",
             "description",
             "status",
             "like_count",
@@ -136,7 +134,6 @@ class PostUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = [
-            "title",
             "description",
         ]
 

@@ -15,39 +15,6 @@ BASE_LAT = 9.9312
 BASE_LON = 76.2673
 
 
-food_spots = [
-    "Paragon Restaurant",
-    "Rahmath Hotel",
-    "Burger Junction",
-    "Alakapuri",
-    "Cafe 17",
-    "KFC Edappally",
-    "Pizza Hut",
-    "Arabian Palace",
-    "Beyond Burg",
-    "Zaatar",
-    "Thaff Delicacy",
-    "Hotel Galaxy",
-    "Burger Lounge",
-    "Mehfil Biriyani",
-    "Cafe Papaya",
-]
-
-
-titles = [
-    "Amazing chicken biriyani",
-    "Best alfaham in town",
-    "Late night shawarma vibes",
-    "Crispy beef burger review",
-    "Tried the viral pizza",
-    "Perfect evening snack",
-    "Budget friendly meals",
-    "Best cafe ambience",
-    "Spicy grilled chicken",
-    "Loaded fries experience",
-]
-
-
 descriptions = [
     fake.paragraph(nb_sentences=3),
     fake.paragraph(nb_sentences=4),
@@ -107,10 +74,6 @@ class Command(BaseCommand):
 
             post = Post(
                 user_id=random.choice(user_ids),
-
-                foodspot_tag=random.choice(food_spots),
-
-                title=random.choice(titles),
 
                 description=random.choice(descriptions),
 
