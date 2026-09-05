@@ -1,5 +1,6 @@
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
+from django.utils import timezone
 from post.models import Post
 from hotel.models import Hotel
 
@@ -18,7 +19,8 @@ def get_hotel_location_link(hotel_id):
 
 def get_feed_by_post_rating(lat=None, lon=None, limit=20):
     posts = (
-        Post.objects.filter(
+        Post.objects.regular()
+        .filter(
             status=Post.Status.PUBLISHED,
             hotel__isnull=False,
         )
@@ -33,4 +35,14 @@ def get_feed_by_post_rating(lat=None, lon=None, limit=20):
         )
 
     return posts[:limit]
+
+
+def get_instant_feed():
+    return (
+        Post.objects.instant()
+        .filter(status=Post.Status.PUBLISHED, expires_at__gt=timezone.now())
+        .select_related("user", "user__profile", "hotel")
+        .prefetch_related("likes", "saved", "ratings", "media")
+        .order_by("created_at")
+    )
 

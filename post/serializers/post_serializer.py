@@ -1,3 +1,5 @@
+from datetime import timedelta
+from django.utils import timezone
 from rest_framework_gis.fields import GeometryField
 from rest_framework import serializers
 from ..models import Post, PostMedia
@@ -49,6 +51,7 @@ class   CreatePostSerializer(serializers.ModelSerializer):
             "hotel",
             "description",
             "status",
+            "post_type",
             "like_count",
             "avg_rating",
             "rating_count",
@@ -86,12 +89,25 @@ class   CreatePostSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     {"ratings": "Hotels cannot rate posts."}
                 )
-        else:
-            given = [r["category"] for r in ratings or []]
+        elif ratings:
+            given = [r["category"] for r in ratings]
             if sorted(given) != sorted(required_categories):
                 raise serializers.ValidationError(
                     {"ratings": "Provide exactly one rating for each of: "
                                 f"{', '.join(sorted(required_categories))}."}
+                )
+
+        if attrs.get("post_type") == Post.PostType.INSTANT:
+            media = attrs.get("media") or []
+            item = media[0] if len(media) == 1 else None
+            if (
+                item is None
+                or item.get("content_type") != PostMedia.ContentType.VIDEO
+                or item.get("category") != PostMedia.Category.INSTANT
+            ):
+                raise serializers.ValidationError(
+                    {"media": "Instant posts must be a single video with "
+                              "category 'instant'."}
                 )
 
         return attrs
@@ -100,6 +116,9 @@ class   CreatePostSerializer(serializers.ModelSerializer):
         principal = self.context["request"].user
         ratings = validated_data.pop("ratings", [])
         media_items = validated_data.pop("media")
+
+        if validated_data.get("post_type") == Post.PostType.INSTANT:
+            validated_data["expires_at"] = timezone.now() + timedelta(hours=24)
 
         if isinstance(principal, Hotel):
             validated_data["hotel"] = principal

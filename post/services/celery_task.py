@@ -2,10 +2,12 @@ import os
 import tempfile
 import subprocess
 import requests
+from datetime import timedelta
 from celery import shared_task
 from django.conf import settings
+from django.utils import timezone
 
-from post.models import PostMedia
+from post.models import Post, PostMedia
 from .post_service import upload_file_to_s3
 
 
@@ -80,3 +82,30 @@ def generate_thumbnail(self, post_media_id):
 
         if temp_thumbnail_path and os.path.exists(temp_thumbnail_path):
             os.remove(temp_thumbnail_path)
+
+
+@shared_task
+def archive_expired_instant_posts():
+
+    now = timezone.now()
+
+    Post.objects.filter(
+        post_type=Post.PostType.INSTANT,
+        status=Post.Status.PUBLISHED,
+        expires_at__lte=now,
+    ).update(
+        status=Post.Status.ARCHIVED,
+        archived_at=now,
+    )
+
+
+@shared_task
+def purge_stale_archived_instant_posts():
+
+    cutoff = timezone.now() - timedelta(days=10)
+
+    Post.objects.filter(
+        post_type=Post.PostType.INSTANT,
+        status=Post.Status.ARCHIVED,
+        archived_at__lte=cutoff,
+    ).delete()

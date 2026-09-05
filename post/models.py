@@ -6,11 +6,25 @@ from user.models import User
 from hotel.models import Hotel
 
 
+class PostQuerySet(models.QuerySet):
+    def instant(self):
+        return self.filter(post_type=Post.PostType.INSTANT)
+
+    def regular(self):
+        return self.filter(post_type=Post.PostType.REGULAR)
+
+
 class Post(models.Model):
     class Status(models.TextChoices):
         DRAFT = 'draft', 'Draft'
         PUBLISHED = 'published', 'Published'
         ARCHIVED = 'archived', 'Archived'
+
+    class PostType(models.TextChoices):
+        REGULAR = 'regular', 'Regular'
+        INSTANT = 'instant', 'Instant'
+
+    objects = PostQuerySet.as_manager()
 
     user = models.ForeignKey(
         User,
@@ -34,7 +48,16 @@ class Post(models.Model):
         max_length=10,
         choices=Status.choices,
         default=Status.DRAFT
-    ) 
+    )
+
+    post_type = models.CharField(
+        max_length=10,
+        choices=PostType.choices,
+        default=PostType.REGULAR
+    )
+
+    expires_at = models.DateTimeField(null=True, blank=True)
+    archived_at = models.DateTimeField(null=True, blank=True)
 
     like_count = models.PositiveIntegerField(default=0)
     comment_count = models.PositiveBigIntegerField(default=0)
@@ -48,6 +71,12 @@ class Post(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        indexes = [
+            models.Index(
+                fields=['post_type', 'status', 'expires_at'],
+                name='post_type_status_expiry_idx',
+            )
+        ]
         constraints = [
             models.CheckConstraint(
                 condition=(
@@ -55,7 +84,14 @@ class Post(models.Model):
                     | models.Q(hotel__isnull=False)
                 ),
                 name='post_has_user_or_hotel',
-            )
+            ),
+            models.CheckConstraint(
+                condition=(
+                    ~models.Q(post_type='regular')
+                    | models.Q(expires_at__isnull=True)
+                ),
+                name='regular_post_has_no_expiry',
+            ),
         ]
 
     @property
@@ -160,6 +196,8 @@ class PostRating(models.Model):
         choices=Category.choices
     )
     score = models.SmallIntegerField(
+        null=True,
+        blank=True,
         validators=[
             MinValueValidator(1),
             MaxValueValidator(5)

@@ -19,6 +19,7 @@ from .menu.views.fooditem_detail import FoodItemDetailView
 from .menu.views.create_variant import CreateFoodItemVariantView
 from .menu.views.variant_detail import FoodItemVariantDetailView
 from .views.rating_view import CreateHotelRatingView, CreateHotelReviewView
+from .views.nearest_hotel_view import NearestHotelView
 urlpatterns = [
     path("create/", CreateHotelView.as_view(), name="create-hotel"),
     path("signup/", SignupView.as_view(), name="hotel-signup"),
@@ -27,6 +28,7 @@ urlpatterns = [
     path('refresh-token/', RefreshAccessToken.as_view(), name='refresh-token'),
     path("profile/<int:hotel_id>/", GetHotelProfileView.as_view(), name="hotel-profile"),
     path("list/", ListHotelsView.as_view(), name="hotel-list"),
+    path("nearest/", NearestHotelView.as_view(), name="nearest-hotel"),
     path("avatar-upload-url/", UploadProfilePictureURLView.as_view(), name="hotel-avatar-upload-url"),
     path("menu/", MenuListView.as_view(), name="menu-list"),
     path("menu/create/", CreateMenuView.as_view(), name="create-menu"),

@@ -52,6 +52,17 @@ CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = "Asia/Kolkata"
 
+CELERY_BEAT_SCHEDULE = {
+    "archive-expired-instant-posts": {
+        "task": "post.services.celery_task.archive_expired_instant_posts",
+        "schedule": timedelta(minutes=10),
+    },
+    "purge-stale-archived-instant-posts": {
+        "task": "post.services.celery_task.purge_stale_archived_instant_posts",
+        "schedule": timedelta(days=1),
+    },
+}
+
 
 # settings.py
 TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")

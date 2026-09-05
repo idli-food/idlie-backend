@@ -55,6 +55,8 @@ class HotelRating(models.Model):
         related_name="ratings"
     )
     rating_count = models.SmallIntegerField(
+        null=True,
+        blank=True,
         validators=[
             MinValueValidator(1),
             MaxValueValidator(5)
