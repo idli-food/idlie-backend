@@ -3,10 +3,12 @@ from .views.generate_upload_url import GenerateUploadUrlView
 from .views.create_post import CreatePostView
 from .views.post_services_view import LikePostView, PostCommentView, SavePostView, GetSavedPostView, GetAuthorPostsView
 from .views.rate_post_view import RatePostView
+from .views.post_details import PostDetailView
 
 urlpatterns = [
     path("content/upload-url/", GenerateUploadUrlView.as_view(), name="get upload url"),
     path("", CreatePostView.as_view(), name="create new post"),
+    path("<int:post_id>/", PostDetailView.as_view(), name="post detail"),
     path("<int:post_id>/like/", LikePostView.as_view(), name="like post"),
     path("<int:post_id>/comment/", PostCommentView.as_view(), name="like post"),
     path("<int:post_id>/comment/<uuid:comment_id>/", PostCommentView.as_view(), name="post comment"),

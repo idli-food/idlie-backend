@@ -4,7 +4,7 @@ from post.models import Post
 from ..services.fetch_media import get_pre_signed_url
 from ..services.feed_services import get_hotel_location_link
 from user.models import User,UserProfile
-from post.serializers.post_serializer import PostRatingSerializer
+from post.serializers.post_serializer import PostRatingSerializer, PostMediaSerializer
 
 class FeedUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -28,6 +28,7 @@ class FeedPostSerializer(serializers.ModelSerializer):
     is_liked = serializers.SerializerMethodField()
     is_mine = serializers.SerializerMethodField()
     ratings = PostRatingSerializer(many=True, read_only=True)
+    media = PostMediaSerializer(many=True, read_only=True)
     hotel_name = serializers.SerializerMethodField()
 
     def get_hotel_name(self, obj):
@@ -83,13 +84,11 @@ class FeedPostSerializer(serializers.ModelSerializer):
             "user",
             "avatar",
             "description",
-            "media_url",
-            "thumbnail_url",
+            "media",
             "comment_count",
             "like_count",
             "rating_count",
             "avg_rating",
-            "media_type",
             "composite_score",
             "is_liked",
             "is_saved",

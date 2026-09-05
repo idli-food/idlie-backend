@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.db.models import F, Q
-from post.models import Post
+from post.models import PostMedia
 
 DEFAULT_PLACEHOLDER = "http://125.0.0.00"
 
@@ -9,8 +9,8 @@ class Command(BaseCommand):
     help = "Backfill thumbnail_url = media_url for image posts missing a real thumbnail"
 
     def handle(self, *args, **kwargs):
-        qs = Post.objects.filter(
-            media_type=Post.MediaType.IMAGE,
+        qs = PostMedia.objects.filter(
+            content_type=PostMedia.ContentType.IMAGE,
         ).filter(
             Q(thumbnail_url__isnull=True)
             | Q(thumbnail_url="")
@@ -21,5 +21,5 @@ class Command(BaseCommand):
         updated = qs.update(thumbnail_url=F("media_url"))
 
         self.stdout.write(
-            self.style.SUCCESS(f"Updated {updated} of {count} image posts.")
+            self.style.SUCCESS(f"Updated {updated} of {count} image media.")
         )

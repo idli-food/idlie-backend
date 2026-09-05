@@ -22,7 +22,7 @@ def get_feed_by_post_rating(lat=None, lon=None, limit=20):
             status=Post.Status.PUBLISHED,
             hotel__isnull=False,
         )
-        .prefetch_related("likes", "saved", "ratings")
+        .prefetch_related("likes", "saved", "ratings", "media")
         .order_by("-avg_rating", "-rating_count", "-created_at")
     )
 

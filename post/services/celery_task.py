@@ -5,22 +5,22 @@ import requests
 from celery import shared_task
 from django.conf import settings
 
-from post.models import Post
+from post.models import PostMedia
 from .post_service import upload_file_to_s3
 
 
 
 @shared_task(bind=True, max_retries=3, default_retry_delay=10)
-def generate_thumbnail(self, post_id):
+def generate_thumbnail(self, post_media_id):
 
-    post = Post.objects.get(id=post_id)
+    post_media = PostMedia.objects.get(id=post_media_id)
 
     temp_video_path = None
     temp_thumbnail_path = None
 
     try:
 
-        response = requests.get(post.media_url, stream=True)
+        response = requests.get(post_media.media_url, stream=True)
         response.raise_for_status()
 
         with tempfile.NamedTemporaryFile(
@@ -61,16 +61,16 @@ def generate_thumbnail(self, post_id):
         # Upload thumbnail to S3
         thumbnail_url = upload_file_to_s3(
             file_path=temp_thumbnail_path,
-            s3_key=f"thumbnails/{post.id}.jpg",
+            s3_key=f"thumbnails/{post_media.id}.jpg",
         )
 
         # Save URL
-        post.thumbnail_url = thumbnail_url
-        post.upload_status = Post.UploadStatus.UPLOADED
-        post.save(update_fields=["thumbnail_url", "upload_status"])
+        post_media.thumbnail_url = thumbnail_url
+        post_media.upload_status = PostMedia.UploadStatus.UPLOADED
+        post_media.save(update_fields=["thumbnail_url", "upload_status"])
     except Exception as exc:
-        post.upload_status = Post.UploadStatus.FAILED
-        post.save(update_fields=["upload_status"])
+        post_media.upload_status = PostMedia.UploadStatus.FAILED
+        post_media.save(update_fields=["upload_status"])
         raise self.retry(exc=exc)
 
     finally:

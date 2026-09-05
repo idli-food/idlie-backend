@@ -1,7 +1,12 @@
 # admin.py
 
 from django.contrib import admin
-from .models import Post
+from .models import Post, PostMedia
+
+
+class PostMediaInline(admin.TabularInline):
+    model = PostMedia
+    extra = 0
 
 
 @admin.register(Post)
@@ -11,19 +16,15 @@ class PostAdmin(admin.ModelAdmin):
         "title",
         "user",
         "food_spot",
-        "media_type",
         "status",
         "like_count",
         "avg_rating",
         "composite_score",
-        "is_proccessed",
         "created_at",
     )
 
     list_filter = (
-        "media_type",
         "status",
-        "is_proccessed",
         "created_at",
     )
 
@@ -46,6 +47,8 @@ class PostAdmin(admin.ModelAdmin):
 
     ordering = ("-created_at",)
 
+    inlines = [PostMediaInline]
+
     fieldsets = (
         ("Basic Info", {
             "fields": (
@@ -54,16 +57,6 @@ class PostAdmin(admin.ModelAdmin):
                 "foodspot_tag",
                 "title",
                 "description",
-            )
-        }),
-
-        ("Media", {
-            "fields": (
-                "media_type",
-                "raw_s3_key",
-                "media_url",
-                "thumbnail_url",
-                "is_proccessed",
             )
         }),
 
@@ -85,3 +78,25 @@ class PostAdmin(admin.ModelAdmin):
             "fields": ("created_at",)
         }),
     )
+
+
+@admin.register(PostMedia)
+class PostMediaAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "post",
+        "content_type",
+        "category",
+        "position",
+        "is_processed",
+        "upload_status",
+    )
+
+    list_filter = (
+        "content_type",
+        "category",
+        "upload_status",
+        "is_processed",
+    )
+
+    ordering = ("post", "position")

@@ -223,7 +223,7 @@ All published posts authored by the hotel, in feed shape. Failure should degrade
 ]
 ```
 
-> Note: `view` values other than `feed` return a compact shape (`id`, `thumbnail_url`, `media_type`) instead.
+> Note: `view` values other than `feed` return a compact shape (`id`, `media`) instead, where `media` is an array of `{ content_type, category, position, media_key, media_url, thumbnail_url }` objects.
 
 ### Errors
 | Code | When |

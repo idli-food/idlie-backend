@@ -1,6 +1,6 @@
 from rest_framework_gis.fields import GeometryField
 from rest_framework import serializers
-from ..models import Post
+from ..models import Post, PostMedia
 from ..models import Like, Comments, Saved, PostRating
 from ..services import post_service
 from user.serivices.user_service import get_avatar_url
@@ -18,10 +18,29 @@ class PostRatingSerializer(serializers.ModelSerializer):
         ]
 
 
+class PostMediaSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = PostMedia
+        fields = [
+            "content_type",
+            "category",
+            "position",
+            "media_key",
+            "media_url",
+            "thumbnail_url",
+        ]
+        read_only_fields = [
+            "media_url",
+            "thumbnail_url",
+        ]
+
+
 class   CreatePostSerializer(serializers.ModelSerializer):
 
     location = GeometryField(required=False)
     ratings = PostRatingSerializer(many=True, write_only=True, required=False)
+    media = PostMediaSerializer(many=True, write_only=True)
 
     class Meta:
         model = Post
@@ -31,10 +50,6 @@ class   CreatePostSerializer(serializers.ModelSerializer):
             "food_spot",
             "title",
             "description",
-            "media_type",
-            "raw_s3_key",
-            "media_url",
-            "thumbnail_url",
             "status",
             "like_count",
             "avg_rating",
@@ -42,16 +57,21 @@ class   CreatePostSerializer(serializers.ModelSerializer):
             "composite_score",
             "location",
             "ratings",
+            "media",
         ]
 
         read_only_fields = [
             "user",
-            "media_url",
             "like_count",
             "avg_rating",
             "rating_count",
             "composite_score",
         ]
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data["media"] = PostMediaSerializer(instance.media.all(), many=True).data
+        return data
 
     def validate(self, attrs):
         principal = self.context["request"].user
@@ -81,13 +101,17 @@ class   CreatePostSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         principal = self.context["request"].user
         ratings = validated_data.pop("ratings", [])
+        media_items = validated_data.pop("media")
 
         if isinstance(principal, Hotel):
             validated_data["hotel"] = principal
-            return super().create(validated_data)
+            post = super().create(validated_data)
+            self._create_media(post, media_items)
+            return post
 
         validated_data["user"] = principal
         post = super().create(validated_data)
+        self._create_media(post, media_items)
 
         PostRating.objects.bulk_create([
             PostRating(user=principal, post=post, **rating)
@@ -96,15 +120,35 @@ class   CreatePostSerializer(serializers.ModelSerializer):
         post_service.update_post_rating_stats(post.id)
         return post
 
+    def _create_media(self, post, media_items):
+        PostMedia.objects.bulk_create([
+            PostMedia(post=post, position=item.get("position", index), **{
+                k: v for k, v in item.items() if k != "position"
+            })
+            for index, item in enumerate(media_items)
+        ])
 
 
 
-class PostProfilePageSerializer(serializers.ModelSerializer):
+
+class PostUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
         fields = [
-            "thumbnail_url"
+            "title",
+            "description",
+        ]
+
+
+class PostProfilePageSerializer(serializers.ModelSerializer):
+
+    media = PostMediaSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Post
+        fields = [
+            "media"
         ]
 
 class PostLikeSerializer(serializers.ModelSerializer):
@@ -168,22 +212,22 @@ class FeedPostCommentSerializer(serializers.ModelSerializer):
 
 class SavedPostSerilizer(serializers.ModelSerializer):
 
+    media = PostMediaSerializer(many=True, read_only=True)
 
     class Meta:
         model = Post
         fields = [
             "id",
-            "thumbnail_url",
-            "media_type",
+            "media",
         ]
 
 class SavedPostFeedSerilizer(serializers.ModelSerializer):
 
+    media = PostMediaSerializer(many=True, read_only=True)
 
     class Meta:
         model = Post
         fields = [
             "id",
-            "thumbnail_url",
-            "media_type",
+            "media",
         ]

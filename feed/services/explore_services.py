@@ -15,7 +15,7 @@ def get_posts_by_hotel_address(query):
 
 
 def get_explore_page_content(lat=None, lon=None, radius_km=20, query=None):
-    posts = Post.objects.filter(status=Post.Status.PUBLISHED)
+    posts = Post.objects.filter(status=Post.Status.PUBLISHED).prefetch_related("media")
 
     if lat is not None and lon is not None:
         user_location = Point(lon, lat, srid=4326)

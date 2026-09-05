@@ -1,5 +1,5 @@
 from django.db.models import F, Avg
-from ..models import Post, Like, Comments, Saved, PostRating
+from ..models import Post, PostMedia, Like, Comments, Saved, PostRating
 from django.conf import settings
 from hotel.models import Hotel
 import boto3
@@ -45,20 +45,20 @@ def delete_post_like(post_id, user_id):
     return deleted > 0
 
 
-def set_media_url(post):
+def set_media_url(post_media):
     try:
-        if not post.raw_s3_key:
+        if not post_media.media_key:
             return None
 
-        url = get_s3_public_url(post.raw_s3_key)
-        Post.objects.filter(id=post.id).update(media_url=url)
+        url = get_s3_public_url(post_media.media_key)
+        PostMedia.objects.filter(id=post_media.id).update(media_url=url)
 
-    except Post.DoesNotExist:
+    except PostMedia.DoesNotExist:
         return None
 
 
-def set_thumbnail_url_image(post_id):
-    updated = Post.objects.filter(id=post_id).update(thumbnail_url=F('media_url'))
+def set_thumbnail_url_image(post_media_id):
+    updated = PostMedia.objects.filter(id=post_media_id).update(thumbnail_url=F('media_url'))
     if not updated:
         return None
 
@@ -91,13 +91,13 @@ def get_comments(post_id):
 
  
 def get_saved_post(user_id):
-    return Post.objects.filter(saved__user_id=user_id)
+    return Post.objects.filter(saved__user_id=user_id).prefetch_related("media")
 
 
 def get_posts_by_author(user_id=None, hotel_id=None):
     if hotel_id:
-        return Post.objects.filter(hotel_id=hotel_id, status=Post.Status.PUBLISHED)
-    return Post.objects.filter(user_id=user_id, status=Post.Status.PUBLISHED)
+        return Post.objects.filter(hotel_id=hotel_id, status=Post.Status.PUBLISHED).prefetch_related("media")
+    return Post.objects.filter(user_id=user_id, status=Post.Status.PUBLISHED).prefetch_related("media")
 
 
 def upload_file_to_s3(

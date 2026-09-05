@@ -4,7 +4,8 @@ from faker import Faker
 from django.contrib.gis.geos import Point
 from geopy.distance import geodesic
 from django.core.management.base import BaseCommand
-from post.models import Post
+from post.models import Post, PostMedia
+from user.models import User
 
 fake = Faker()
 
@@ -81,7 +82,13 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
 
+        user_ids = list(User.objects.values_list("id", flat=True))
+        if not user_ids:
+            self.stderr.write(self.style.ERROR("No users found, cannot seed posts."))
+            return
+
         posts = []
+        media_specs = []
 
         for _ in range(20):
 
@@ -96,20 +103,16 @@ class Command(BaseCommand):
 
             extension = "png" if media_type == "image" else "mp4"
 
+            category = "video" if media_type == "video" else random.choice(["instant", "photos"])
+
             post = Post(
-                user_id=random.randint(20, 36),
+                user_id=random.choice(user_ids),
 
                 foodspot_tag=random.choice(food_spots),
 
                 title=random.choice(titles),
 
                 description=random.choice(descriptions),
-
-                media_type=media_type,
-
-                raw_s3_key=f"upload/{uuid.uuid4().hex}.{extension}",
-
-                is_proccessed=True,
 
                 status=status,
 
@@ -125,10 +128,23 @@ class Command(BaseCommand):
             )
 
             posts.append(post)
+            media_specs.append((media_type, category, extension))
 
 
         # Bulk insert
         Post.objects.bulk_create(posts)
+
+        PostMedia.objects.bulk_create([
+            PostMedia(
+                post=post,
+                content_type=media_type,
+                category=category,
+                position=0,
+                media_key=f"upload/{uuid.uuid4().hex}.{extension}",
+                is_processed=True,
+            )
+            for post, (media_type, category, extension) in zip(posts, media_specs)
+        ])
 
         print("20 fake posts created successfully")
 

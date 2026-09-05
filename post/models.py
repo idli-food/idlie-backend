@@ -8,19 +8,10 @@ from hotel.models import Hotel
 
 
 class Post(models.Model):
-    class MediaType(models.TextChoices):
-        IMAGE = 'image', 'Image'
-        VIDEO = 'video', 'Video'
-
     class Status(models.TextChoices):
         DRAFT = 'draft', 'Draft'
         PUBLISHED = 'published', 'Published'
         ARCHIVED = 'archived', 'Archived'
-
-    class UploadStatus(models.TextChoices):
-        PROCESSING = "processing"
-        UPLOADED = "uploaded"
-        FAILED = "failed"
 
     user = models.ForeignKey(
         User,
@@ -50,16 +41,6 @@ class Post(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
 
-    media_type = models.CharField(
-        max_length=10,
-        choices=MediaType.choices
-    )
-
-    raw_s3_key = models.CharField(max_length=500)
-    is_proccessed = models.BooleanField(default=False)
-    thumbnail_url = models.URLField(max_length=2000,blank=True,null=True,default="http://125.0.0.00")
-    media_url = models.URLField(max_length=2000,blank=True,null=True,default="http://125.0.0.00")
-
     status = models.CharField(
         max_length=10,
         choices=Status.choices,
@@ -71,11 +52,6 @@ class Post(models.Model):
     avg_rating = models.FloatField(default=0.0)
     rating_count = models.PositiveIntegerField(default=0)
     composite_score = models.FloatField(default=0.0)
-    upload_status = models.CharField(
-        max_length=10,
-        choices=UploadStatus.choices,
-        default=UploadStatus.PROCESSING
-    ) 
 
     # Optional geolocation for the post itself
     location = gis_models.PointField(geography=True, null=True, blank=True)
@@ -100,6 +76,56 @@ class Post(models.Model):
     def __str__(self):
         return self.title
 
+
+class PostMedia(models.Model):
+    class ContentType(models.TextChoices):
+        IMAGE = 'image', 'Image'
+        VIDEO = 'video', 'Video'
+
+    class Category(models.TextChoices):
+        INSTANT = 'instant', 'Instant'
+        VIDEO = 'video', 'Video'
+        PHOTOS = 'photos', 'Photos'
+
+    class UploadStatus(models.TextChoices):
+        PROCESSING = "processing"
+        UPLOADED = "uploaded"
+        FAILED = "failed"
+
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        related_name='media'
+    )
+
+    content_type = models.CharField(
+        max_length=10,
+        choices=ContentType.choices
+    )
+
+    position = models.PositiveIntegerField(default=0)
+
+    media_url = models.URLField(max_length=2000, blank=True, null=True, default="http://125.0.0.00")
+    media_key = models.CharField(max_length=500)
+    is_processed = models.BooleanField(default=False)
+    thumbnail_url = models.URLField(max_length=2000, blank=True, null=True, default="http://125.0.0.00")
+
+    category = models.CharField(
+        max_length=10,
+        choices=Category.choices
+    )
+
+    upload_status = models.CharField(
+        max_length=10,
+        choices=UploadStatus.choices,
+        default=UploadStatus.PROCESSING
+    )
+
+    class Meta:
+        ordering = ['position']
+
+    def __str__(self):
+        return f"{self.post_id} media #{self.position}"
 
 
 class Like(models.Model):
