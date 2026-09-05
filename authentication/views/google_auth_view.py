@@ -16,7 +16,7 @@ from ..jwt.cookies import set_auth_cookies
 from ..jwt.jwt_utils import create_access_token, create_refresh_token, decode_token
 from ..models import GoogleIdentity
 from ..service.OTPservices import OTPServices
-from ..service.google_oauth import build_auth_url, exchange_code, fetch_userinfo
+from ..service.google_oauth import build_auth_url, exchange_code, fetch_userinfo, verify_id_token
 from ..service.ownership import is_phone_number_available
 
 REGISTRATION_TOKEN_LIFETIME = timedelta(minutes=15)
@@ -88,6 +88,59 @@ class GoogleCallbackView(APIView):
             sub, email, userinfo.get("name", ""), userinfo.get("picture", "")
         )
         return _frontend_redirect("/complete-profile", token=registration_token)
+
+
+class GoogleTokenAuthView(APIView):
+
+    def post(self, request):
+        id_token_str = request.data.get("id_token")
+        if not id_token_str:
+            return error_response(message="id_token is required")
+
+        try:
+            payload = verify_id_token(id_token_str)
+        except Exception:
+            return error_response(message="Invalid Google token", code=status.HTTP_401_UNAUTHORIZED)
+
+        sub = payload.get("sub")
+        email = payload.get("email")
+        if not sub or not email:
+            return error_response(message="Incomplete Google profile")
+
+        identity = GoogleIdentity.objects.filter(google_sub=sub).first()
+        if identity:
+            user = identity.user
+            access = create_access_token(user.id)
+            refresh = create_refresh_token(user.id)
+            return success_response(
+                message="Login successful",
+                data={
+                    "user": {
+                        "id": user.id,
+                        "username": user.username,
+                        "phone_number": user.phone,
+                    },
+                    "tokens": {
+                        "access": access,
+                        "refresh": refresh,
+                    },
+                    "is_new_user": False,
+                },
+            )
+
+        registration_token = _build_registration_token(
+            sub, email, payload.get("name", ""), payload.get("picture", "")
+        )
+        return success_response(
+            message="Profile completion required",
+            data={
+                "is_new_user": True,
+                "registration_token": registration_token,
+                "email": email,
+                "name": payload.get("name", ""),
+                "picture": payload.get("picture", ""),
+            },
+        )
 
 
 class GoogleCompleteView(APIView):

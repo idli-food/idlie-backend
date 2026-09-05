@@ -44,3 +44,12 @@ def fetch_userinfo(access_token):
     )
     response.raise_for_status()
     return response.json()
+
+
+def verify_id_token(id_token_str):
+    from google.auth.transport import requests as google_requests
+    from google.oauth2 import id_token as google_id_token
+
+    return google_id_token.verify_oauth2_token(
+        id_token_str, google_requests.Request(), settings.GOOGLE_CLIENT_ID
+    )

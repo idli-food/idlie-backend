@@ -3,7 +3,7 @@ from django.urls import path
 from .views.get_otp_view import SendOtpView
 from .views.validate_otp import ValidateOTPView
 from .views.refresh_tokens import RefreshAccessToken
-from .views.google_auth_view import GoogleLoginView, GoogleCallbackView, GoogleCompleteView
+from .views.google_auth_view import GoogleLoginView, GoogleCallbackView, GoogleCompleteView, GoogleTokenAuthView
 from .views.me_view import MeView
 from .views.logout_view import LogoutView
 from accounts.views.login_view import LoginView
@@ -15,6 +15,7 @@ urlpatterns = [
     path("login/", LoginView.as_view(), name="login"),
     path("google/login/", GoogleLoginView.as_view(), name="google login"),
     path("google/callback/", GoogleCallbackView.as_view(), name="google callback"),
+    path("google/token/", GoogleTokenAuthView.as_view(), name="google token auth"),
     path("google/complete/", GoogleCompleteView.as_view(), name="google complete"),
     path("me/", MeView.as_view(), name="me"),
     path("logout/", LogoutView.as_view(), name="logout"),
