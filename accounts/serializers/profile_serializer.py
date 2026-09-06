@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.gis.geos import Point
 from user.models import User, UserProfile
+from post.models import Post
 from post.services import post_service
 
 class ProfileViewSerializer(serializers.ModelSerializer):
@@ -40,10 +41,10 @@ class ProfileViewSerializer(serializers.ModelSerializer):
         return obj.user.post_ratings.values('post').distinct().count()
 
     def get_total_likes(self, obj):
-        return obj.user.likes.count()
+        return obj.user.likes.filter(post__post_type=Post.PostType.REGULAR).count()
 
     def get_total_post(self, obj):
-        return obj.user.posts.count()
+        return obj.user.posts.filter(post_type=Post.PostType.REGULAR).count()
 
 
 
