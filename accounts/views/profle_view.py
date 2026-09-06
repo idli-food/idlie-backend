@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from ..serializers.profile_serializer import ProfileViewSerializer
+from ..serializers.profile_serializer import SelfProfileViewSerializer
 
 
 class ProfileView(APIView):
@@ -11,7 +11,7 @@ class ProfileView(APIView):
 
     def get(self, request):
         try:
-            serializer = ProfileViewSerializer(request.user.profile)
+            serializer = SelfProfileViewSerializer(request.user.profile)
             return Response(serializer.data)
         except Exception as e:
             return Response(

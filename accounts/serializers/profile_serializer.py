@@ -47,11 +47,21 @@ class ProfileViewSerializer(serializers.ModelSerializer):
         return obj.user.posts.filter(post_type=Post.PostType.REGULAR).count()
 
 
+class SelfProfileViewSerializer(ProfileViewSerializer):
+    """Profile of the logged-in user. Adds the private, editable fields the
+    public `ProfileViewSerializer` deliberately withholds."""
+
+    class Meta(ProfileViewSerializer.Meta):
+        fields = ProfileViewSerializer.Meta.fields + ["dob", "diet", "food_preference"]
+        read_only_fields = fields
+
+
 
 class CompleteProfileSerializer(serializers.ModelSerializer):
     lat = serializers.FloatField(write_only=True, required=False)
     lon = serializers.FloatField(write_only=True, required=False)
     avatar = serializers.CharField(required=False, allow_blank=True)
+    dob = serializers.DateField(required=False, allow_null=True)
 
     class Meta:
         model = UserProfile
@@ -59,7 +69,6 @@ class CompleteProfileSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'name': {'required': False},
             'bio': {'required': False, 'allow_blank': True},
-            'dob': {'required': False},
             'diet': {'required': False, 'allow_blank': True},
             'food_preference': {'required': False, 'allow_blank': True},
             'avatar': {'required': False},
