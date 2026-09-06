@@ -100,6 +100,12 @@ def get_posts_by_author(user_id=None, hotel_id=None):
     return Post.objects.filter(user_id=user_id, status=Post.Status.PUBLISHED).prefetch_related("media")
 
 
+def get_regular_posts_by_user(user_id):
+    return Post.objects.regular().filter(
+        user_id=user_id, status=Post.Status.PUBLISHED
+    ).prefetch_related("media")
+
+
 def upload_file_to_s3(
     file_path: str,
     s3_key: str,
