@@ -13,6 +13,7 @@ class JWTAuthentication(BaseAuthentication):
 
     def authenticate(self, request):
         auth_header = request.headers.get("Authorization")
+        from_header = bool(auth_header)
 
         if auth_header:
             prefix, _, token = auth_header.partition(" ")
@@ -46,15 +47,15 @@ class JWTAuthentication(BaseAuthentication):
 
             return (principal, token)
 
-        except jwt.ExpiredSignatureError:
-            raise AuthenticationFailed("Token expired")
-
-        except jwt.DecodeError:
-            raise AuthenticationFailed("Invalid token")
-
-        except User.DoesNotExist:
-            raise AuthenticationFailed("User not found")
-        except Hotel.DoesNotExist:
-            raise AuthenticationFailed("User not found")
+        except (jwt.ExpiredSignatureError, jwt.DecodeError, jwt.InvalidTokenError,
+                User.DoesNotExist, Hotel.DoesNotExist):
+            if from_header:
+                raise AuthenticationFailed("Invalid or expired token")
+            return None
         except Exception as e:
-            raise AuthenticationFailed(str(e))
+            if from_header:
+                raise AuthenticationFailed(str(e))
+            return None
+
+    def authenticate_header(self, request):
+        return "Bearer"
