@@ -1,6 +1,6 @@
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
-from django.db.models import Avg, Count
+from django.db.models import Avg, Count, Q
 from django.utils import timezone
 from post.models import Post
 from hotel.models import Hotel
@@ -18,7 +18,7 @@ def get_hotel_location_link(hotel_id):
     )
 
 
-def get_feed_by_post_rating(lat=None, lon=None, limit=20):
+def get_feed_by_post_rating(lat=None, lon=None, location=None, limit=20):
     posts = (
         Post.objects.regular()
         .filter(
@@ -33,6 +33,13 @@ def get_feed_by_post_rating(lat=None, lon=None, limit=20):
         )
         .order_by("-avg_rating", "-rating_count", "-created_at")
     )
+
+    if location:
+        located = posts.filter(
+            Q(hotel__city__icontains=location) | Q(hotel__address__icontains=location)
+        )
+        if located.exists():
+            posts = located
 
     if lat is not None and lon is not None:
         user_location = Point(lon, lat, srid=4326)

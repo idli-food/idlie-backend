@@ -25,8 +25,9 @@ class FeedView(APIView):
             )
 
         platform = request.GET.get("platform")
+        location = (request.GET.get("location") or "").strip() or None
 
-        posts = get_feed_by_post_rating(lat, lon)
+        posts = get_feed_by_post_rating(lat, lon, location)
 
         serializer = FeedPostSerializer(posts, many=True, context={'request': request, 'platform': platform})
         print("Serialized feed data:", serializer.data)  # Debugging line
