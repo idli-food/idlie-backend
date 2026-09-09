@@ -1,8 +1,13 @@
 
 
+from django.db.models import Avg
+
 from hotel.models import Hotel
 
 
+def hotel_rating_summary(hotel):
+    agg = hotel.ratings.aggregate(average=Avg("rating_count"))
+    return {"average_rating": agg["average"], "rating_count": hotel.ratings.count()}
 
 
 

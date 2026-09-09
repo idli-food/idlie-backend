@@ -30,11 +30,23 @@ class FeedPostSerializer(serializers.ModelSerializer):
     ratings = PostRatingSerializer(many=True, read_only=True)
     media = PostMediaSerializer(many=True, read_only=True)
     hotel_name = serializers.SerializerMethodField()
+    hotel = serializers.SerializerMethodField()
 
     def get_hotel_name(self, obj):
         if obj.hotel_id:
             return obj.hotel.name
         return None
+
+    def get_hotel(self, obj):
+        if not obj.hotel_id:
+            return None
+        return {
+            "id": obj.hotel_id,
+            "name": obj.hotel.name,
+            "address": obj.hotel.address,
+            "average_rating": getattr(obj, "hotel_avg_rating", None),
+            "rating_count": getattr(obj, "hotel_review_count", 0),
+        }
 
     def get_location_link(self, obj):
         return get_hotel_location_link(obj.hotel_id)
@@ -97,4 +109,5 @@ class FeedPostSerializer(serializers.ModelSerializer):
             "location_link",
             "location_point",
             "hotel_name",
+            "hotel",
         ]

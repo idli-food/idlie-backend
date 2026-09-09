@@ -1,5 +1,6 @@
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
+from django.db.models import Avg, Count
 from django.utils import timezone
 from post.models import Post
 from hotel.models import Hotel
@@ -24,7 +25,12 @@ def get_feed_by_post_rating(lat=None, lon=None, limit=20):
             status=Post.Status.PUBLISHED,
             hotel__isnull=False,
         )
+        .select_related("hotel")
         .prefetch_related("likes", "saved", "ratings", "media")
+        .annotate(
+            hotel_avg_rating=Avg("hotel__ratings__rating_count"),
+            hotel_review_count=Count("hotel__ratings", distinct=True),
+        )
         .order_by("-avg_rating", "-rating_count", "-created_at")
     )
 

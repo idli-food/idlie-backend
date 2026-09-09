@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError
 from rest_framework import status
@@ -26,16 +27,19 @@ class CreatePostView(APIView):
             )
 
             if serializer.is_valid():
-                post = serializer.save()
-                print("Post created successfully:", post)
+                with transaction.atomic():
+                    post = serializer.save()
+                    print("Post created successfully:", post)
 
-                post_service.set_post_location_from_hotel(post)
-                for media in post.media.all():
-                    post_service.set_media_url(media)
-                    if media.content_type == 'video':
-                        generate_thumbnail.delay(post_media_id=media.id)
-                    elif media.content_type == 'image':
-                        post_service.set_thumbnail_url_image(media.id)
+                    post_service.set_post_location_from_hotel(post)
+                    for media in post.media.all():
+                        post_service.set_media_url(media)
+                        if media.content_type == 'video':
+                            transaction.on_commit(
+                                lambda media_id=media.id: generate_thumbnail.delay(post_media_id=media_id)
+                            )
+                        elif media.content_type == 'image':
+                            post_service.set_thumbnail_url_image(media.id)
 
                 post_output = CreatePostSerializer(post).data
 

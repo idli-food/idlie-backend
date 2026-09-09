@@ -3,10 +3,12 @@ from django.contrib.gis.geos import Point
 from user.models import User, UserProfile
 from post.models import Post
 from post.services import post_service
+from .archive_serializer import ArchiveSummarySerializer
 
 class ProfileViewSerializer(serializers.ModelSerializer):
 
     username = serializers.CharField(source='user.username', read_only=True)
+    archives = ArchiveSummarySerializer(source='user.archives', many=True, read_only=True)
     total_post = serializers.SerializerMethodField()
     total_likes = serializers.SerializerMethodField()
     total_stars = serializers.SerializerMethodField()
@@ -28,6 +30,7 @@ class ProfileViewSerializer(serializers.ModelSerializer):
             "total_stars",
             "total_rating",
             "total_post",
+            "archives",
             "is_verified",
             'completion_percentage', 'incomplete_fields', 'is_profile_complete',
             

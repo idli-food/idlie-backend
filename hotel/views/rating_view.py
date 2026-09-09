@@ -2,11 +2,11 @@ from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from django.db.models import Avg
 
 from user.models import User
 from hotel.models import Hotel, HotelRating, HotelReview
 from hotel.serializers.rating_serializer import HotelRatingSerializer, HotelReviewSerializer
+from hotel.services.hotel_services import hotel_rating_summary
 from core.utils.api_response import success_response, error_response
 
 
@@ -22,7 +22,7 @@ class CreateHotelRatingView(APIView):
                 code=status.HTTP_404_NOT_FOUND
             )
 
-        average_rating = hotel.ratings.aggregate(average=Avg("rating_count"))["average"]
+        summary = hotel_rating_summary(hotel)
 
         user_rating = None
         if isinstance(request.user, User):
@@ -33,8 +33,8 @@ class CreateHotelRatingView(APIView):
         return success_response(
             message="Ratings fetched successfully",
             data={
-                "average_rating": average_rating,
-                "rating_count": hotel.ratings.count(),
+                "average_rating": summary["average_rating"],
+                "rating_count": summary["rating_count"],
                 "user_rating": user_rating,
             }
         )

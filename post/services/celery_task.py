@@ -15,7 +15,10 @@ from .post_service import upload_file_to_s3
 @shared_task(bind=True, max_retries=3, default_retry_delay=10)
 def generate_thumbnail(self, post_media_id):
 
-    post_media = PostMedia.objects.get(id=post_media_id)
+    try:
+        post_media = PostMedia.objects.get(id=post_media_id)
+    except PostMedia.DoesNotExist as exc:
+        raise self.retry(exc=exc)
 
     temp_video_path = None
     temp_thumbnail_path = None
@@ -108,4 +111,4 @@ def purge_stale_archived_instant_posts():
         post_type=Post.PostType.INSTANT,
         status=Post.Status.ARCHIVED,
         archived_at__lte=cutoff,
-    ).delete()
+    ).exclude(archive_items__isnull=False).delete()

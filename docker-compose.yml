@@ -54,11 +54,30 @@ services:
 
   celery:
     build: .
+    restart: always
 
     env_file:
       - ./.env
 
     command: celery -A config worker -l info
+
+    volumes:
+      - .:/app
+
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  celery-beat:
+    build: .
+    restart: always
+
+    env_file:
+      - ./.env
+
+    command: celery -A config beat -l info
 
     volumes:
       - .:/app

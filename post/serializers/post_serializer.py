@@ -7,6 +7,7 @@ from ..models import Like, Comments, Saved, PostRating
 from ..services import post_service
 from user.serivices.user_service import get_avatar_url
 from hotel.models import Hotel
+from hotel.services.hotel_services import hotel_rating_summary
 
 
 class PostRatingSerializer(serializers.ModelSerializer):
@@ -43,12 +44,24 @@ class   CreatePostSerializer(serializers.ModelSerializer):
     location = GeometryField(required=False)
     ratings = PostRatingSerializer(many=True, write_only=True, required=False)
     media = PostMediaSerializer(many=True, write_only=True)
+    hotel_detail = serializers.SerializerMethodField()
+
+    def get_hotel_detail(self, obj):
+        if not obj.hotel_id:
+            return None
+        return {
+            "id": obj.hotel_id,
+            "name": obj.hotel.name,
+            "address": obj.hotel.address,
+            **hotel_rating_summary(obj.hotel),
+        }
 
     class Meta:
         model = Post
         fields = [
             "user",
             "hotel",
+            "hotel_detail",
             "description",
             "status",
             "post_type",
