@@ -5,5 +5,5 @@ from core.models import Waitlister
 
 @admin.register(Waitlister)
 class WaitlisterAdmin(admin.ModelAdmin):
-    list_display = ("name", "email", "created_at")
+    list_display = ("name", "email", "location", "created_at")
     search_fields = ("name", "email")
