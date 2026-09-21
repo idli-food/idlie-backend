@@ -25,6 +25,7 @@ urlpatterns = [
     path('feed/',include('feed.urls')),
     path('auth/',include('authentication.urls')),
     path('hotel/',include('hotel.urls')),
+    path('coins/',include('coins.urls')),
 
     path('accounts/',include('accounts.urls')),
 
