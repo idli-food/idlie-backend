@@ -15,9 +15,11 @@ from user.serivices.user_profile import create_user_profile
 from ..jwt.cookies import set_auth_cookies
 from ..jwt.jwt_utils import create_access_token, create_refresh_token, decode_token
 from ..models import GoogleIdentity
-from ..service.OTPservices import OTPServices
 from ..service.google_oauth import build_auth_url, exchange_code, fetch_userinfo, verify_id_token
 from ..service.ownership import is_phone_number_available
+from otp import services as otp_services
+from otp.exceptions import InvalidPhoneError, OTPError
+from otp.tokens import consume_verification_token
 
 REGISTRATION_TOKEN_LIFETIME = timedelta(minutes=15)
 
@@ -149,9 +151,10 @@ class GoogleCompleteView(APIView):
         token = request.data.get("token")
         username = request.data.get("username")
         phone = request.data.get("phone")
+        verification_token = request.data.get("verification_token")
 
-        if not token or not username or not phone:
-            return error_response(message="token, username and phone are required")
+        if not token or not username or not phone or not verification_token:
+            return error_response(message="token, username, phone and verification_token are required")
 
         try:
             payload = decode_token(token)
@@ -172,15 +175,24 @@ class GoogleCompleteView(APIView):
         if User.objects.filter(username=username).exists():
             return error_response(message="username already taken")
 
-        if not OTPServices.validate_phonenumber(phone):
+        try:
+            phone = otp_services.normalize_phone(phone)
+        except InvalidPhoneError:
             return error_response(message="invalid phone number pls check", data=phone)
 
         if not is_phone_number_available(phone):
             return error_response(message="phone number already taken", data="login")
 
+        try:
+            consume_verification_token(verification_token, expected_purpose="user_signup", expected_phone=phone)
+        except OTPError as exc:
+            return error_response(message=exc.message, code=exc.code)
+
         user = User.objects.create_user(username=username, phone=phone)
         user.email = payload["email"]
         user.set_unusable_password()
+        user.phone_verified = True
+        user.phone_verified_at = datetime.now(timezone.utc)
         user.save()
 
         create_user_profile(user)

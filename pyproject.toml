@@ -16,6 +16,7 @@ dependencies = [
     "geopy>=2.4.1",
     "google-auth>=2.35.0",
     "gunicorn>=26.0.0",
+    "phonenumbers>=9.0.0",
     "pillow>=12.2.0",
     "psycopg2-binary>=2.9.12",
     "psycopg[binary]>=3.3.4",

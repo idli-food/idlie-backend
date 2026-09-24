@@ -25,6 +25,8 @@ class Hotel(models.Model):
     avatar = models.URLField(blank=True, null=True)
     location_link = models.URLField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
+    phone_verified = models.BooleanField(default=False)
+    phone_verified_at = models.DateTimeField(null=True, blank=True)
 
     @property
     def is_authenticated(self):

@@ -26,6 +26,7 @@ urlpatterns = [
     path('auth/',include('authentication.urls')),
     path('hotel/',include('hotel.urls')),
     path('coins/',include('coins.urls')),
+    path('otp/',include('otp.urls')),
 
     path('accounts/',include('accounts.urls')),
 

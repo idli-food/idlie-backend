@@ -6,23 +6,26 @@ from rest_framework.permissions import IsAuthenticated
 from ..authentication.services.jwt.jwt_utils import create_access_token, create_refresh_token
 from ..serializers.hotel_serializer import CreateHotelSerializer
 from core.utils.api_response import success_response, error_response
-from ..authentication.services.hotel_creation import HotelCreation
+from otp.exceptions import OTPError
+from otp.tokens import consume_verification_token
 
 
 
 class CreateHotelView(APIView):
-    
 
-    
+
+
     def post(self, request):
 
         try:
             request_id = request.data.get("request_id")
-            if not request_id or not HotelCreation.is_request_id_valid(request_id):
-                return error_response(
-                    message="request_id not provided or not valid",
-                    code=status.HTTP_400_BAD_REQUEST
+            phone_number = request.data.get("phone_number")
+            try:
+                consume_verification_token(
+                    request_id, expected_purpose="hotel_signup", expected_phone=phone_number
                 )
+            except OTPError as exc:
+                return error_response(message=exc.message, code=exc.code)
 
             serializer = CreateHotelSerializer(
                 data=request.data,

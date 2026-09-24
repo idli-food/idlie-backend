@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework import serializers
 from hotel.models import Hotel
 from rest_framework_gis.fields import GeometryField
@@ -30,6 +31,8 @@ class CreateHotelSerializer(serializers.ModelSerializer):
         password = validated_data.pop("password")
         hotel = Hotel(**validated_data)
         hotel.set_password(password)
+        hotel.phone_verified = True
+        hotel.phone_verified_at = timezone.now()
         hotel.save()
         return hotel
 
@@ -46,7 +49,9 @@ class HotelProfileSerializer(serializers.ModelSerializer):
             "address",
             "location",
             "location_link",
+            "phone_verified",
         ]
+        read_only_fields = ["phone_verified"]
 
     def update(self, instance, validated_data):
         avatar = validated_data.pop("avatar", None)

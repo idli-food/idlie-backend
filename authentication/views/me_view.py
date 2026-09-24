@@ -16,5 +16,6 @@ class MeView(APIView):
                 "id": user.id,
                 "username": user.username,
                 "phone_number": user.phone,
+                "phone_verified": user.phone_verified,
             }
         )

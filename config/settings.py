@@ -68,6 +68,11 @@ CELERY_BEAT_SCHEDULE = {
 TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
 TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
 TWILIO_VERIFY_SERVICE_SID = os.getenv("TWILIO_VERIFY_SERVICE_SID")  # created once in Twilio console
+# Optional per-purpose Verify Services; each falls back to TWILIO_VERIFY_SERVICE_SID if unset
+TWILIO_VERIFY_SID_HOTEL_SIGNUP = os.getenv("TWILIO_VERIFY_SID_HOTEL_SIGNUP")
+TWILIO_VERIFY_SID_HOTEL_LOGIN = os.getenv("TWILIO_VERIFY_SID_HOTEL_LOGIN")
+TWILIO_VERIFY_SID_USER_SIGNUP = os.getenv("TWILIO_VERIFY_SID_USER_SIGNUP")
+TWILIO_VERIFY_SID_PASSWORD_RESET = os.getenv("TWILIO_VERIFY_SID_PASSWORD_RESET")
 
 
 
@@ -107,11 +112,32 @@ INSTALLED_APPS = [
     'accounts', 
     'hotel',
     'coins',
+    'otp',
 ]
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "authentication.jwt.authentications.JWTAuthentication",
-    ]
+    ],
+    # otp views set throttle_classes=[ScopedRateThrottle] explicitly; this only
+    # supplies the rates for those scopes, it doesn't throttle other views.
+    "DEFAULT_THROTTLE_RATES": {
+        "otp_send": os.getenv("OTP_SEND_THROTTLE_RATE", "5/hour"),
+        "otp_verify": os.getenv("OTP_VERIFY_THROTTLE_RATE", "10/hour"),
+    },
+    "NUM_PROXIES": int(os.getenv("NUM_PROXIES", "1")),
+}
+
+# Django's native Redis cache backend, reusing the same Redis instance as
+# Celery on a separate DB index so cooldown/pending-OTP state is shared across
+# gunicorn workers (LocMemCache, Django's implicit default, is per-process).
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": os.getenv(
+            "OTP_REDIS_URL",
+            CELERY_BROKER_URL.rsplit("/", 1)[0] + "/2",
+        ),
+    }
 }
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
