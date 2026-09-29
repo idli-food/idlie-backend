@@ -1,4 +1,5 @@
 import logging
+import secrets
 
 import phonenumbers
 from django.conf import settings
@@ -23,7 +24,7 @@ from .exceptions import (
 
 logger = logging.getLogger("otp")
 
-PURPOSES = ("hotel_signup", "hotel_login", "user_signup", "password_reset")
+PURPOSES = ("hotel_signup", "hotel_login", "user_signup", "user_auth", "password_reset")
 
 COOLDOWN_SECONDS = 30
 PENDING_TTL_SECONDS = 600
@@ -32,6 +33,7 @@ _PURPOSE_SID_SETTING = {
     "hotel_signup": "TWILIO_VERIFY_SID_HOTEL_SIGNUP",
     "hotel_login": "TWILIO_VERIFY_SID_HOTEL_LOGIN",
     "user_signup": "TWILIO_VERIFY_SID_USER_SIGNUP",
+    "user_auth": "TWILIO_VERIFY_SID_USER_AUTH",
     "password_reset": "TWILIO_VERIFY_SID_PASSWORD_RESET",
 }
 
@@ -125,6 +127,9 @@ def purpose_precondition(phone, purpose, requesting_account=None):
             raise PhoneAlreadyRegisteredError(message="Phone number already registered")
         return True
 
+    if purpose == "user_auth":
+        return True
+
     if purpose in ("hotel_login", "password_reset"):
         return Hotel.objects.filter(phone_number=phone).exists()
 
@@ -138,6 +143,12 @@ def send_otp(phone_raw, purpose, requesting_account=None):
     should_send = purpose_precondition(phone, purpose, requesting_account=requesting_account)
     if not should_send:
         logger.info("otp send skipped (anti-enumeration) purpose=%s phone=%s", purpose, mask_phone(phone))
+        return phone
+
+    if settings.OTP_LOCAL_MODE:
+        code = f"{secrets.randbelow(10**6):06d}"
+        cache.set(_pending_key(phone, purpose), code, timeout=PENDING_TTL_SECONDS)
+        logger.warning("LOCAL OTP purpose=%s phone=%s code=%s", purpose, mask_phone(phone), code)
         return phone
 
     sid = _verify_service_sid(purpose)
@@ -162,20 +173,24 @@ def verify_otp(phone_raw, purpose, code, requesting_account=None):
     if not pending_sid:
         raise CodeExpiredError()
 
-    sid = _verify_service_sid(purpose)
-    try:
-        check = _twilio_client().verify.v2.services(sid).verification_checks.create(to=phone, code=code)
-    except TwilioRestException as exc:
-        if exc.status == 404:
-            raise CodeExpiredError()
-        error_cls = _TWILIO_ERROR_MAP.get(exc.code)
-        if error_cls:
-            raise error_cls()
-        logger.warning("unmapped twilio error purpose=%s phone=%s code=%s", purpose, mask_phone(phone), exc.code)
-        raise
+    if settings.OTP_LOCAL_MODE:
+        if code != pending_sid:
+            raise WrongCodeError()
+    else:
+        sid = _verify_service_sid(purpose)
+        try:
+            check = _twilio_client().verify.v2.services(sid).verification_checks.create(to=phone, code=code)
+        except TwilioRestException as exc:
+            if exc.status == 404:
+                raise CodeExpiredError()
+            error_cls = _TWILIO_ERROR_MAP.get(exc.code)
+            if error_cls:
+                raise error_cls()
+            logger.warning("unmapped twilio error purpose=%s phone=%s code=%s", purpose, mask_phone(phone), exc.code)
+            raise
 
-    if check.status != "approved":
-        raise WrongCodeError()
+        if check.status != "approved":
+            raise WrongCodeError()
 
     cache.delete(_pending_key(phone, purpose))
     logger.info("otp verified purpose=%s phone=%s", purpose, mask_phone(phone))

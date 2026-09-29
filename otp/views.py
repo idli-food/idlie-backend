@@ -1,8 +1,11 @@
+from django.utils import timezone
 from rest_framework.permissions import AllowAny
 from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
 from authentication.jwt.authentications import JWTAuthentication
+from authentication.jwt.cookies import set_auth_cookies
+from authentication.jwt.jwt_utils import create_access_token, create_refresh_token
 from core.utils.api_response import error_response, success_response
 from hotel.authentication.services.jwt.jwt_utils import (
     create_access_token as create_hotel_access_token,
@@ -95,6 +98,31 @@ class VerifyOtpView(APIView):
                     "refresh_token": refresh_token,
                 },
             )
+
+        if purpose == "user_auth":
+            try:
+                user = User.objects.get(phone=verified_phone)
+            except User.DoesNotExist:
+                token = issue_verification_token(verified_phone, purpose)
+                return success_response(
+                    message="OTP verified",
+                    data={"is_new_user": True, "verification_token": token},
+                )
+            user.phone_verified = True
+            user.phone_verified_at = timezone.now()
+            user.save(update_fields=["phone_verified", "phone_verified_at"])
+            access = create_access_token(user.id)
+            refresh = create_refresh_token(user.id)
+            response = success_response(
+                message="Login successful",
+                data={
+                    "is_new_user": False,
+                    "user": {"id": user.id, "username": user.username, "phone_number": user.phone},
+                    "tokens": {"access": access, "refresh": refresh},
+                },
+            )
+            set_auth_cookies(response, access, refresh)
+            return response
 
         token = issue_verification_token(verified_phone, purpose)
         return success_response(message="OTP verified", data={"verification_token": token})

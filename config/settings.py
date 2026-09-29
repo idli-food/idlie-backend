@@ -72,17 +72,16 @@ TWILIO_VERIFY_SERVICE_SID = os.getenv("TWILIO_VERIFY_SERVICE_SID")  # created on
 TWILIO_VERIFY_SID_HOTEL_SIGNUP = os.getenv("TWILIO_VERIFY_SID_HOTEL_SIGNUP")
 TWILIO_VERIFY_SID_HOTEL_LOGIN = os.getenv("TWILIO_VERIFY_SID_HOTEL_LOGIN")
 TWILIO_VERIFY_SID_USER_SIGNUP = os.getenv("TWILIO_VERIFY_SID_USER_SIGNUP")
-TWILIO_VERIFY_SID_PASSWORD_RESET = os.getenv("TWILIO_VERIFY_SID_PASSWORD_RESET")
+TWILIO_VERIFY_SID_USER_AUTH = os.getenv("TWILIO_VERIFY_SID_USER_AUTH")
+TWILIO_VERIFY_SID_PASSWORD_RESET =os.getenv("TWILIO_VERIFY_SID_PASSWORD_RESET")
+# Local testing only: skip Twilio, generate a random 6-digit code and log it
+OTP_LOCAL_MODE = os.getenv("OTP_LOCAL_MODE") == "True"
 
 
 
 JWT_SECRET = os.getenv("SECRET_KEY")
 
-GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
-GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
-GOOGLE_OAUTH_REDIRECT_URI = os.getenv("GOOGLE_OAUTH_REDIRECT_URI")
 GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
-FRONTEND_URL = os.getenv("FRONTEND_URL")
 
 # Auth cookies. Cross-site frontend/API (different domains) needs "None"; a
 # same-site deploy can use "Lax". "None" forces Secure regardless of the flag.

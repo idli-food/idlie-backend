@@ -5,6 +5,7 @@ from twilio.base.exceptions import TwilioRestException
 
 from authentication.jwt.jwt_utils import decode_token
 from hotel.models import Hotel
+from user.models import User
 
 from .base import OtpAPITestCase
 
@@ -119,3 +120,50 @@ class VerifyOtpTests(OtpAPITestCase):
         payload = decode_token(data["access_token"])
         self.assertEqual(payload["role"], "hotel")
         self.assertEqual(payload["hotel_id"], hotel.id)
+
+
+class UserAuthTests(OtpAPITestCase):
+
+    def _verify(self, phone):
+        self.client.post(SEND_URL, {"phone": phone, "purpose": "user_auth"}, format="json")
+        self.mock_verification_checks.create.return_value = MagicMock(status="approved")
+        return self.client.post(
+            VERIFY_URL, {"phone": phone, "purpose": "user_auth", "code": "123456"}, format="json"
+        )
+
+    def test_new_phone_gets_verification_token(self):
+        response = self._verify("+919876543210")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data["data"]["is_new_user"])
+        self.assertIn("verification_token", response.data["data"])
+
+    def test_existing_user_logs_in_with_tokens_and_cookies(self):
+        User.objects.create_user(username="arjun", phone="+919876543210")
+        response = self._verify("+919876543210")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.data["data"]["is_new_user"])
+        self.assertIn("access", response.data["data"]["tokens"])
+        self.assertIn("access_token", response.cookies)
+        self.assertTrue(User.objects.get(username="arjun").phone_verified)
+
+    def test_signup_creates_user_with_valid_token(self):
+        token = self._verify("+919876543210").data["data"]["verification_token"]
+        response = self.client.post(
+            "/auth/signup/",
+            {"username": "arjun", "phone": "+919876543210", "verification_token": token},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        user = User.objects.get(username="arjun")
+        self.assertTrue(user.phone_verified)
+        self.assertIn("access_token", response.cookies)
+
+    def test_signup_rejects_taken_username_and_reused_token(self):
+        User.objects.create_user(username="taken", phone="+919876543299")
+        token = self._verify("+919876543210").data["data"]["verification_token"]
+        payload = {"username": "taken", "phone": "+919876543210", "verification_token": token}
+        self.assertEqual(self.client.post("/auth/signup/", payload, format="json").status_code, 400)
+        payload["username"] = "fresh"
+        self.assertEqual(self.client.post("/auth/signup/", payload, format="json").status_code, 201)
+        payload["username"] = "fresh2"
+        self.assertNotEqual(self.client.post("/auth/signup/", payload, format="json").status_code, 201)
