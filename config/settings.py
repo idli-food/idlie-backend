@@ -122,6 +122,7 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_RATES": {
         "otp_send": os.getenv("OTP_SEND_THROTTLE_RATE", "5/hour"),
         "otp_verify": os.getenv("OTP_VERIFY_THROTTLE_RATE", "10/hour"),
+        "login": os.getenv("LOGIN_THROTTLE_RATE", "10/hour"),
     },
     "NUM_PROXIES": int(os.getenv("NUM_PROXIES", "1")),
 }

@@ -1,3 +1,5 @@
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.views import APIView
@@ -19,9 +21,10 @@ class SignupView(APIView):
         username = (request.data.get("username") or "").strip()
         phone = request.data.get("phone")
         verification_token = request.data.get("verification_token")
+        password = request.data.get("password")
 
-        if not username or not phone or not verification_token:
-            return error_response(message="username, phone and verification_token are required")
+        if not username or not phone or not verification_token or not password:
+            return error_response(message="username, phone, password and verification_token are required")
 
         try:
             phone = otp_services.normalize_phone(phone)
@@ -34,12 +37,17 @@ class SignupView(APIView):
             return error_response(message="phone number already taken", data="login")
 
         try:
+            validate_password(password, User(username=username, phone=phone))
+        except ValidationError as exc:
+            return error_response(message=" ".join(exc.messages))
+
+        try:
             consume_verification_token(verification_token, expected_purpose="user_auth", expected_phone=phone)
         except OTPError as exc:
             return error_response(message=exc.message, code=exc.code)
 
         user = User.objects.create_user(username=username, phone=phone)
-        user.set_unusable_password()
+        user.set_password(password)
         user.phone_verified = True
         user.phone_verified_at = timezone.now()
         user.save()

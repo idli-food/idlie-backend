@@ -137,33 +137,81 @@ class UserAuthTests(OtpAPITestCase):
         self.assertTrue(response.data["data"]["is_new_user"])
         self.assertIn("verification_token", response.data["data"])
 
-    def test_existing_user_logs_in_with_tokens_and_cookies(self):
+    def test_existing_phone_is_told_user_exists(self):
         User.objects.create_user(username="arjun", phone="+919876543210")
         response = self._verify("+919876543210")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertFalse(response.data["data"]["is_new_user"])
-        self.assertIn("access", response.data["data"]["tokens"])
-        self.assertIn("access_token", response.cookies)
-        self.assertTrue(User.objects.get(username="arjun").phone_verified)
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
 
     def test_signup_creates_user_with_valid_token(self):
         token = self._verify("+919876543210").data["data"]["verification_token"]
         response = self.client.post(
             "/auth/signup/",
-            {"username": "arjun", "phone": "+919876543210", "verification_token": token},
+            {"username": "arjun", "phone": "+919876543210", "verification_token": token, "password": "S3cure-pass!x"},
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         user = User.objects.get(username="arjun")
         self.assertTrue(user.phone_verified)
+        self.assertTrue(user.check_password("S3cure-pass!x"))
         self.assertIn("access_token", response.cookies)
 
     def test_signup_rejects_taken_username_and_reused_token(self):
         User.objects.create_user(username="taken", phone="+919876543299")
         token = self._verify("+919876543210").data["data"]["verification_token"]
-        payload = {"username": "taken", "phone": "+919876543210", "verification_token": token}
+        payload = {"username": "taken", "phone": "+919876543210", "verification_token": token, "password": "S3cure-pass!x"}
         self.assertEqual(self.client.post("/auth/signup/", payload, format="json").status_code, 400)
         payload["username"] = "fresh"
         self.assertEqual(self.client.post("/auth/signup/", payload, format="json").status_code, 201)
         payload["username"] = "fresh2"
         self.assertNotEqual(self.client.post("/auth/signup/", payload, format="json").status_code, 201)
+
+
+class PasswordLoginTests(OtpAPITestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.user = User.objects.create_user(username="arjun", phone="+919876543210")
+        self.user.set_password("S3cure-pass!x")
+        self.user.save()
+
+    def test_login_by_username_and_phone(self):
+        for identifier in ("arjun", "9876543210", "+919876543210"):
+            response = self.client.post(
+                "/auth/login/", {"identifier": identifier, "password": "S3cure-pass!x"}, format="json"
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK, identifier)
+            self.assertIn("access", response.data["data"]["tokens"])
+            self.assertIn("access_token", response.cookies)
+
+    def test_wrong_password_and_unknown_user_rejected(self):
+        for identifier, password in (("arjun", "nope"), ("ghost", "S3cure-pass!x")):
+            response = self.client.post(
+                "/auth/login/", {"identifier": identifier, "password": password}, format="json"
+            )
+            self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_unusable_password_cannot_log_in(self):
+        User.objects.create_user(username="nopass", phone="+919876543211")
+        response = self.client.post(
+            "/auth/login/", {"identifier": "nopass", "password": "anything"}, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_forgot_password_flow(self):
+        phone = "+919876543210"
+        self.client.post(SEND_URL, {"phone": phone, "purpose": "user_password_reset"}, format="json")
+        self.mock_verification_checks.create.return_value = MagicMock(status="approved")
+        verify = self.client.post(
+            VERIFY_URL, {"phone": phone, "purpose": "user_password_reset", "code": "123456"}, format="json"
+        )
+        self.assertEqual(verify.status_code, status.HTTP_200_OK)
+        token = verify.data["data"]["verification_token"]
+
+        payload = {"phone": phone, "verification_token": token, "new_password": "N3w-pass-word!"}
+        self.assertEqual(self.client.post("/auth/reset-password/", payload, format="json").status_code, 200)
+        self.assertEqual(self.client.post("/auth/reset-password/", payload, format="json").status_code, 401)
+
+        login = self.client.post(
+            "/auth/login/", {"identifier": "arjun", "password": "N3w-pass-word!"}, format="json"
+        )
+        self.assertEqual(login.status_code, status.HTTP_200_OK)
