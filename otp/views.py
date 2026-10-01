@@ -74,6 +74,10 @@ class VerifyOtpView(APIView):
         except OTPError as exc:
             return error_response(message=exc.message, code=exc.code)
 
+        if purpose == "user_delete_account":
+            token = issue_verification_token(services.normalize_phone(phone), purpose)
+            return success_response(message="OTP verified", data={"verification_token": token})
+
         if result["kind"] == "self_reverified":
             return success_response(message="Phone verified")
 

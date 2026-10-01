@@ -24,7 +24,7 @@ from .exceptions import (
 
 logger = logging.getLogger("otp")
 
-PURPOSES = ("hotel_signup", "hotel_login", "user_signup", "user_auth", "password_reset", "user_password_reset")
+PURPOSES = ("hotel_signup", "hotel_login", "user_signup", "user_auth", "password_reset", "user_password_reset", "user_delete_account")
 
 COOLDOWN_SECONDS = 30
 PENDING_TTL_SECONDS = 600
@@ -36,6 +36,7 @@ _PURPOSE_SID_SETTING = {
     "user_auth": "TWILIO_VERIFY_SID_USER_AUTH",
     "password_reset": "TWILIO_VERIFY_SID_PASSWORD_RESET",
     "user_password_reset": "TWILIO_VERIFY_SID_USER_PASSWORD_RESET",
+    "user_delete_account": "TWILIO_VERIFY_SID_USER_DELETE_ACCOUNT",
 }
 
 _client = None
@@ -136,6 +137,9 @@ def purpose_precondition(phone, purpose, requesting_account=None):
 
     if purpose == "user_password_reset":
         return User.objects.filter(phone=phone).exists()
+
+    if purpose == "user_delete_account":
+        return isinstance(requesting_account, User) and requesting_account.phone == phone
 
     raise InvalidPhoneError(message="Unsupported purpose")
 
