@@ -1,5 +1,6 @@
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
+from django.db.models import Q
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 
@@ -7,7 +8,7 @@ from ..models import Hotel
 from ..serializers.hotel_serializer import CreateHotelSerializer
 from core.utils.api_response import success_response, error_response
 
-HOTEL_LIST_RADIUS_KM = 20
+HOTEL_LIST_RADIUS_KM = 10
 
 
 class ListHotelsView(APIView):
@@ -24,6 +25,14 @@ class ListHotelsView(APIView):
             return error_response(message="Invalid lat or lon")
 
         hotels = Hotel.objects.all()
+
+        query = request.GET.get("q", "").strip()
+        if query:
+            hotels = hotels.filter(
+                Q(name__icontains=query)
+                | Q(address__icontains=query)
+                | Q(city__icontains=query)
+            )
 
         if lat is not None and lon is not None:
             user_location = Point(lon, lat, srid=4326)
