@@ -27,6 +27,7 @@ class Hotel(models.Model):
     is_active = models.BooleanField(default=True)
     phone_verified = models.BooleanField(default=False)
     phone_verified_at = models.DateTimeField(null=True, blank=True)
+    tags = models.ManyToManyField("post.Tag", related_name="hotels", blank=True)
 
     @property
     def is_authenticated(self):

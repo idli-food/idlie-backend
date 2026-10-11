@@ -5,6 +5,8 @@ from .views.post_services_view import LikePostView, PostCommentView, SavePostVie
 from .views.rate_post_view import RatePostView
 from .views.post_details import PostDetailView
 from .views.repost_view import RepostView
+from .views.tag_list import TagListView
+from .views.tag_hotels import TagHotelsView
 
 urlpatterns = [
     path("content/upload-url/", GenerateUploadUrlView.as_view(), name="get upload url"),
@@ -16,6 +18,8 @@ urlpatterns = [
     path("<int:post_id>/save/", SavePostView.as_view(), name="save post"),
     path("<int:post_id>/rate/", RatePostView.as_view(), name="rate post"),
     path("<int:post_id>/repost/", RepostView.as_view(), name="repost instant post"),
+    path("tags/", TagListView.as_view(), name="tag list"),
+    path("tags/<int:tag_id>/hotels/", TagHotelsView.as_view(), name="tag hotels"),
     path("saved/me/", GetSavedPostView.as_view(), name="save post"),
 #  used to get all the posts of a particular author (user or hotel)
     path("author/", GetAuthorPostsView.as_view(), name="author posts"),

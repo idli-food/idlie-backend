@@ -2,7 +2,7 @@ from datetime import timedelta
 from django.utils import timezone
 from rest_framework_gis.fields import GeometryField
 from rest_framework import serializers
-from ..models import Post, PostMedia
+from ..models import Post, PostMedia, Tag
 from ..models import Like, Comments, Saved, PostRating
 from ..services import post_service
 from user.serivices.user_service import get_avatar_url
@@ -44,6 +44,9 @@ class   CreatePostSerializer(serializers.ModelSerializer):
     location = GeometryField(required=False)
     ratings = PostRatingSerializer(many=True, write_only=True, required=False)
     media = PostMediaSerializer(many=True, write_only=True)
+    tags = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Tag.objects.all(), required=False
+    )
     hotel_detail = serializers.SerializerMethodField()
 
     def get_hotel_detail(self, obj):
@@ -63,6 +66,7 @@ class   CreatePostSerializer(serializers.ModelSerializer):
             "hotel",
             "hotel_detail",
             "description",
+            "tags",
             "status",
             "post_type",
             "like_count",

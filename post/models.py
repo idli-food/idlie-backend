@@ -6,6 +6,14 @@ from user.models import User
 from hotel.models import Hotel
 
 
+class Tag(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+
 class PostQuerySet(models.QuerySet):
     def instant(self):
         return self.filter(post_type=Post.PostType.INSTANT)
@@ -43,6 +51,8 @@ class Post(models.Model):
     )
 
     description = models.TextField(blank=True)
+
+    tags = models.ManyToManyField(Tag, related_name='posts', blank=True)
 
     status = models.CharField(
         max_length=10,

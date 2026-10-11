@@ -7,3 +7,4 @@ from .models import Hotel
 class HotelAdmin(admin.ModelAdmin):
     list_display = ("name", "city", "phone_number", "email", "created_at")
     search_fields = ("name", "city", "email", "phone_number")
+    filter_horizontal = ("tags",)

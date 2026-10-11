@@ -1,7 +1,7 @@
 # admin.py
 
 from django.contrib import admin
-from .models import Post, PostMedia
+from .models import Post, PostMedia, Tag
 
 
 class PostMediaInline(admin.TabularInline):
@@ -93,3 +93,10 @@ class PostMediaAdmin(admin.ModelAdmin):
     )
 
     ordering = ("post", "position")
+
+
+
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+    list_display = ("id", "name", "created_at")
+    search_fields = ("name",)
