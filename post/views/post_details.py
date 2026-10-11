@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from ..models import Post
 from ..serializers.post_serializer import CreatePostSerializer, PostUpdateSerializer
@@ -11,6 +11,11 @@ from core.utils.api_response import success_response, error_response
 class PostDetailView(APIView):
 
     permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return [AllowAny()]
+        return [IsAuthenticated()]
 
     def get(self, request, post_id):
 

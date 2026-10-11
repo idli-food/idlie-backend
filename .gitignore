@@ -54,3 +54,4 @@ TODO.md
 
 # Local data dumps
 hotels.csv
+celerybeat-schedule*

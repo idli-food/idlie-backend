@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
 from core.utils.api_response import success_response, error_response
 from feed.serializer.feed_serializer import FeedPostSerializer
 from post.services import post_service
@@ -8,7 +8,7 @@ from post.services import post_service
 
 class UserPostsView(APIView):
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request, user_id):
 

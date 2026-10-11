@@ -2,7 +2,7 @@ from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
 from django.db.models import Q
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
 
 from ..models import Hotel
 from ..serializers.hotel_serializer import CreateHotelSerializer
@@ -12,7 +12,7 @@ HOTEL_LIST_RADIUS_KM = 10
 
 
 class ListHotelsView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request):
         lat = request.GET.get("lat")

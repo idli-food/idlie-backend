@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from user.models import User
 from hotel.models import Hotel, HotelRating, HotelReview
@@ -12,6 +12,11 @@ from core.utils.api_response import success_response, error_response
 
 class CreateHotelRatingView(APIView):
     permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return [AllowAny()]
+        return [IsAuthenticated()]
 
     def get(self, request, hotel_id):
         try:
@@ -92,6 +97,11 @@ class CreateHotelRatingView(APIView):
 
 class CreateHotelReviewView(APIView):
     permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return [AllowAny()]
+        return [IsAuthenticated()]
 
     def get(self, request, hotel_id):
         try:

@@ -2,7 +2,7 @@ from django.db import IntegrityError
 from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from ..serializers.post_serializer import PostLikeSerializer, PostCommentSerializer, PostSaveSerializer, FeedPostCommentSerializer, SavedPostSerilizer
 from feed.serializer.feed_serializer import FeedPostSerializer
 from core.utils.api_response import success_response, error_response
@@ -101,6 +101,11 @@ class LikePostView(APIView):
 class  PostCommentView(APIView):
 
     permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return [AllowAny()]
+        return [IsAuthenticated()]
 
 
 
@@ -288,7 +293,7 @@ class SavePostView(APIView):
 #  used to get all the posts of a particular author (user or hotel)
 class GetAuthorPostsView(APIView):
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def post(self, request):
 

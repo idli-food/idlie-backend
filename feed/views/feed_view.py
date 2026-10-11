@@ -3,11 +3,11 @@ from rest_framework.response import Response
 from ..services.feed_services import get_feed_by_post_rating
 from ..serializer.feed_serializer import FeedPostSerializer
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
 
 class FeedView(APIView):
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
 
     def get(self, request):

@@ -3,13 +3,13 @@ from ..services.explore_services import get_explore_page_content, group_posts_by
 from ..serializer.explore_serializer import ExplorePageSerializer
 from feed.serializer.feed_serializer import FeedPostSerializer
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
 from core.utils.api_response import success_response, error_response
 
 
 class ExplorePageView(APIView):
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request):
         lat = request.GET.get("lat")
