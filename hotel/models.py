@@ -28,6 +28,11 @@ class Hotel(models.Model):
     phone_verified = models.BooleanField(default=False)
     phone_verified_at = models.DateTimeField(null=True, blank=True)
     tags = models.ManyToManyField("post.Tag", related_name="hotels", blank=True)
+    price_min = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
+    price_max = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
+    hours = models.CharField(max_length=255, blank=True, null=True)
+    atmosphere = models.CharField(max_length=255, blank=True, null=True)
+    best_for = models.CharField(max_length=255, blank=True, null=True)
 
     @property
     def is_authenticated(self):
@@ -44,6 +49,26 @@ class Hotel(models.Model):
 
 
 
+
+
+class HotelCuisine(models.Model):
+    hotel = models.ForeignKey(Hotel, on_delete=models.CASCADE, related_name="cuisines")
+    cuisine_name = models.CharField(max_length=100)
+
+
+class HotelService(models.Model):
+    hotel = models.ForeignKey(Hotel, on_delete=models.CASCADE, related_name="services")
+    service_name = models.CharField(max_length=100)  # 'Dine-in', 'Delivery', etc.
+
+
+class HotelFacility(models.Model):
+    hotel = models.ForeignKey(Hotel, on_delete=models.CASCADE, related_name="facilities")
+    facility_name = models.CharField(max_length=100)
+
+
+class HotelDish(models.Model):
+    hotel = models.ForeignKey(Hotel, on_delete=models.CASCADE, related_name="dishes")
+    dish_name = models.CharField(max_length=150)
 
 
 class HotelRating(models.Model):

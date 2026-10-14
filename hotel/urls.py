@@ -21,6 +21,7 @@ from .menu.views.create_variant import CreateFoodItemVariantView
 from .menu.views.variant_detail import FoodItemVariantDetailView
 from .views.rating_view import CreateHotelRatingView, CreateHotelReviewView
 from .views.nearest_hotel_view import NearestHotelView
+from .views import admin_views
 urlpatterns = [
     path("create/", CreateHotelView.as_view(), name="create-hotel"),
     path("signup/", SignupView.as_view(), name="hotel-signup"),
@@ -43,6 +44,26 @@ urlpatterns = [
     path("menu/variant/<int:pk>/", FoodItemVariantDetailView.as_view(), name="food-item-variant-detail"),
     path("<int:hotel_id>/rating/", CreateHotelRatingView.as_view(), name="create-hotel-rating"),
     path("<int:hotel_id>/review/", CreateHotelReviewView.as_view(), name="create-hotel-review"),
+    path("admin/login/", admin_views.AdminLoginView.as_view(), name="admin-login"),
+    path("admin/hotels/", admin_views.AdminHotelListView.as_view(), name="admin-hotel-list"),
+    path("admin/hotels/<int:pk>/", admin_views.AdminHotelDetailView.as_view(), name="admin-hotel-detail"),
+    path("admin/hotels/<int:hotel_id>/menus/", admin_views.AdminHotelMenuListView.as_view(), name="admin-hotel-menus"),
+    path("admin/hotels/<int:hotel_id>/menus/import/", admin_views.AdminHotelMenuImportView.as_view(), name="admin-hotel-menu-import"),
+    path("admin/hotels/<int:hotel_id>/ratings/", admin_views.AdminHotelRatingListView.as_view(), name="admin-hotel-ratings"),
+    path("admin/hotels/<int:hotel_id>/reviews/", admin_views.AdminHotelReviewListView.as_view(), name="admin-hotel-reviews"),
+    path("admin/avatar-upload-url/", admin_views.AdminAvatarUploadURLView.as_view(), name="admin-avatar-upload-url"),
+    path("admin/menus/<int:pk>/", admin_views.AdminMenuDetailView.as_view(), name="admin-menu-detail"),
+    path("admin/menus/<int:menu_id>/categories/", admin_views.AdminCreateMenuCategoryView.as_view(), name="admin-create-category"),
+    path("admin/categories/<int:pk>/", admin_views.AdminMenuCategoryDetailView.as_view(), name="admin-category-detail"),
+    path("admin/categories/<int:category_id>/items/", admin_views.AdminCreateFoodItemView.as_view(), name="admin-create-food-item"),
+    path("admin/items/<int:pk>/", admin_views.AdminFoodItemDetailView.as_view(), name="admin-food-item-detail"),
+    path("admin/items/<int:food_item_id>/variants/", admin_views.AdminCreateFoodItemVariantView.as_view(), name="admin-create-variant"),
+    path("admin/variants/<int:pk>/", admin_views.AdminFoodItemVariantDetailView.as_view(), name="admin-variant-detail"),
+    path("admin/tags/", admin_views.AdminTagListView.as_view(), name="admin-tag-list"),
+    path("admin/tags/<int:pk>/", admin_views.AdminTagDetailView.as_view(), name="admin-tag-detail"),
+    path("admin/tags/<int:pk>/hotels/", admin_views.AdminTagHotelsView.as_view(), name="admin-tag-hotels"),
+    path("admin/ratings/<int:pk>/", admin_views.AdminHotelRatingDetailView.as_view(), name="admin-rating-detail"),
+    path("admin/reviews/<int:pk>/", admin_views.AdminHotelReviewDetailView.as_view(), name="admin-review-detail"),
 
 
 ]

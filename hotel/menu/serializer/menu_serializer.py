@@ -2,6 +2,7 @@
 
 
 
+from django.db import transaction
 from rest_framework import serializers
 from hotel.models import Menu,MenuCategory,FoodItem,FoodItemVariant
 
@@ -157,3 +158,38 @@ class MenuDetailSerializer(serializers.ModelSerializer):
             "is_active",
             "categories",
         ]
+
+
+class FoodItemImportSerializer(FoodItemSerializer):
+    variants = FoodItemVariantSerializer(many=True, required=False)
+
+    class Meta(FoodItemSerializer.Meta):
+        fields = FoodItemSerializer.Meta.fields + ["variants"]
+
+
+class MenuCategoryImportSerializer(MenuCategorySerializer):
+    items = FoodItemImportSerializer(many=True, required=False)
+
+    class Meta(MenuCategorySerializer.Meta):
+        fields = MenuCategorySerializer.Meta.fields + ["items"]
+
+
+class MenuImportSerializer(MainMenuSerializer):
+    categories = MenuCategoryImportSerializer(many=True, required=False)
+
+    class Meta(MainMenuSerializer.Meta):
+        fields = MainMenuSerializer.Meta.fields + ["categories"]
+
+    def create(self, validated_data):
+        categories = validated_data.pop("categories", [])
+        with transaction.atomic():
+            menu = Menu.objects.create(**validated_data)
+            for category_data in categories:
+                items = category_data.pop("items", [])
+                category = MenuCategory.objects.create(menu=menu, **category_data)
+                for item_data in items:
+                    variants = item_data.pop("variants", [])
+                    food_item = FoodItem.objects.create(category=category, **item_data)
+                    for variant_data in variants:
+                        FoodItemVariant.objects.create(food_item=food_item, **variant_data)
+        return menu
