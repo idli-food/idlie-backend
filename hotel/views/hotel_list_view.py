@@ -1,10 +1,11 @@
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
-from django.db.models import Q
+from django.db.models import Prefetch, Q
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 
 from ..models import Hotel
+from post.models import Post
 from ..serializers.hotel_serializer import CreateHotelSerializer
 from core.utils.api_response import success_response, error_response
 
@@ -24,7 +25,7 @@ class ListHotelsView(APIView):
         except ValueError:
             return error_response(message="Invalid lat or lon")
 
-        hotels = Hotel.objects.all()
+        hotels = Hotel.objects.filter(posts__status=Post.Status.PUBLISHED).distinct()
 
         query = request.GET.get("q", "").strip()
         if query:
@@ -40,8 +41,23 @@ class ListHotelsView(APIView):
                 location__distance_lte=(user_location, D(km=HOTEL_LIST_RADIUS_KM))
             )
 
-        serializer = CreateHotelSerializer(hotels, many=True)
+        hotels = list(hotels.prefetch_related(Prefetch(
+            "posts",
+            queryset=Post.objects.filter(status=Post.Status.PUBLISHED)
+            .prefetch_related("media")
+            .order_by("-created_at")[:3],
+            to_attr="latest_posts",
+        )))
+
+        data = CreateHotelSerializer(hotels, many=True).data
+        for item, hotel in zip(data, hotels):
+            item["thumbnails"] = [
+                post.media.all()[0].thumbnail_url
+                for post in hotel.latest_posts
+                if post.media.all()
+            ]
+
         return success_response(
             message="Hotels fetched successfully",
-            data=serializer.data
+            data=data
         )
