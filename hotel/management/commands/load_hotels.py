@@ -16,6 +16,7 @@ def format_phone(phone):
         return None
     if digits.startswith("91"):
         digits = digits[2:]
+    digits = digits.lstrip("0")
     return f"+91{digits}"
 
 

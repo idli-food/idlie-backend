@@ -4,6 +4,7 @@ from .views.create_hotel_view import CreateHotelView
 from .views.hotel_test_view import HotelTestView
 from .views.hotel_profile_view import GetHotelProfileView
 from .views.hotel_list_view import ListHotelsView
+from .views.hotel_picker_view import HotelPickerView
 from .authentication.views.login import HotelLoginView
 from .authentication.views.signup import SignupView
 from .authentication.views.validate_otp import ValidateOTPView
@@ -31,6 +32,7 @@ urlpatterns = [
     path('refresh-token/', RefreshAccessToken.as_view(), name='refresh-token'),
     path("profile/<int:hotel_id>/", GetHotelProfileView.as_view(), name="hotel-profile"),
     path("list/", ListHotelsView.as_view(), name="hotel-list"),
+    path("picker/", HotelPickerView.as_view(), name="hotel-picker"),
     path("nearest/", NearestHotelView.as_view(), name="nearest-hotel"),
     path("avatar-upload-url/", UploadProfilePictureURLView.as_view(), name="hotel-avatar-upload-url"),
     path("menu/", MenuListView.as_view(), name="menu-list"),
