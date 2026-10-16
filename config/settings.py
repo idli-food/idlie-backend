@@ -46,6 +46,9 @@ AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME")
 
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/0")
 CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://localhost:6379/0")
+# Local dev without Redis (roxey.yaml): broker memory://, tasks run inline in
+# the calling process — .delay() in Django, periodic tasks in celery beat.
+CELERY_TASK_ALWAYS_EAGER = os.getenv("CELERY_TASK_ALWAYS_EAGER") == "True"
 
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
@@ -139,6 +142,9 @@ CACHES = {
         ),
     }
 }
+# No Redis in local dev: single runserver process, so LocMemCache is enough.
+if CELERY_BROKER_URL.startswith("memory://"):
+    CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}}
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -211,7 +217,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True
 

@@ -1,3 +1,4 @@
+import requests
 from django.contrib.auth import authenticate
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -23,6 +24,7 @@ from hotel.menu.serializer.menu_serializer import (
 )
 from post.models import Tag
 from user.serivices.user_service import get_avatar_upload_url
+from core.services import places
 from core.utils.api_response import success_response, error_response
 
 ADMIN_HOTEL_PAGE_SIZE = 50
@@ -146,6 +148,25 @@ class AdminHotelDetailView(APIView):
 
         hotel.delete()
         return success_response(message="Hotel deleted successfully")
+
+
+class AdminHotelFromLinkView(APIView):
+    permission_classes = [IsStaffUser]
+
+    def post(self, request):
+        link = (request.data.get("link") or "").strip()
+        if not link:
+            return error_response(message="link is required")
+
+        try:
+            data = places.from_maps_link(link)
+        except requests.RequestException:
+            return error_response(message="Fetching place from link failed", code=status.HTTP_502_BAD_GATEWAY)
+
+        if data is None:
+            return not_found("No place found for this link")
+
+        return success_response(message="Place fetched successfully", data=data)
 
 
 class AdminAvatarUploadURLView(APIView):

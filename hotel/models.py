@@ -31,7 +31,6 @@ class Hotel(models.Model):
     tags = models.ManyToManyField("post.Tag", related_name="hotels", blank=True)
     price_min = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
     price_max = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
-    hours = models.CharField(max_length=255, blank=True, null=True)
     atmosphere = models.CharField(max_length=255, blank=True, null=True)
     best_for = models.CharField(max_length=255, blank=True, null=True)
 
@@ -70,6 +69,25 @@ class HotelFacility(models.Model):
 class HotelDish(models.Model):
     hotel = models.ForeignKey(Hotel, on_delete=models.CASCADE, related_name="dishes")
     dish_name = models.CharField(max_length=150)
+
+
+class HotelSession(models.Model):
+    class Day(models.IntegerChoices):
+        MONDAY = 0
+        TUESDAY = 1
+        WEDNESDAY = 2
+        THURSDAY = 3
+        FRIDAY = 4
+        SATURDAY = 5
+        SUNDAY = 6
+
+    hotel = models.ForeignKey(Hotel, on_delete=models.CASCADE, related_name="sessions")
+    day = models.SmallIntegerField(choices=Day.choices)
+    start_time = models.TimeField()
+    end_time = models.TimeField()  # earlier than start_time means it runs past midnight
+
+    class Meta:
+        ordering = ["day", "start_time"]
 
 
 class HotelRating(models.Model):

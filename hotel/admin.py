@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Hotel, HotelCuisine, HotelService, HotelFacility, HotelDish
+from .models import Hotel, HotelCuisine, HotelService, HotelFacility, HotelDish, HotelSession
 
 
 class HotelDishInline(admin.TabularInline):
@@ -23,9 +23,14 @@ class HotelFacilityInline(admin.TabularInline):
     extra = 0
 
 
+class HotelSessionInline(admin.TabularInline):
+    model = HotelSession
+    extra = 0
+
+
 @admin.register(Hotel)
 class HotelAdmin(admin.ModelAdmin):
     list_display = ("name", "city", "phone_number", "email", "created_at")
     search_fields = ("name", "city", "email", "phone_number")
     filter_horizontal = ("tags",)
-    inlines = [HotelDishInline, HotelCuisineInline, HotelServiceInline, HotelFacilityInline]
+    inlines = [HotelDishInline, HotelCuisineInline, HotelServiceInline, HotelFacilityInline, HotelSessionInline]

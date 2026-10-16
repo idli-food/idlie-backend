@@ -6,7 +6,7 @@ from rest_framework.permissions import AllowAny
 
 from ..models import Hotel
 from post.models import Post
-from ..serializers.hotel_serializer import CreateHotelSerializer, HOTEL_LISTS
+from ..serializers.hotel_serializer import CreateHotelSerializer, HotelSessionSerializer, HOTEL_LISTS
 from core.utils.api_response import success_response, error_response
 
 HOTEL_LIST_RADIUS_KM = 10
@@ -41,7 +41,7 @@ class ListHotelsView(APIView):
                 location__distance_lte=(user_location, D(km=HOTEL_LIST_RADIUS_KM))
             )
 
-        hotels = list(hotels.prefetch_related(*HOTEL_LISTS, Prefetch(
+        hotels = list(hotels.prefetch_related(*HOTEL_LISTS, "sessions", Prefetch(
             "posts",
             queryset=Post.objects.filter(status=Post.Status.PUBLISHED)
             .prefetch_related("media")
@@ -59,8 +59,9 @@ class ListHotelsView(APIView):
             for field in ("price_min", "price_max"):
                 value = getattr(hotel, field)
                 item[field] = str(value) if value is not None else None
-            for field in ("hours", "atmosphere", "best_for"):
+            for field in ("atmosphere", "best_for"):
                 item[field] = getattr(hotel, field)
+            item["sessions"] = HotelSessionSerializer(hotel.sessions.all(), many=True).data
             for key, (model, field) in HOTEL_LISTS.items():
                 item[key] = [getattr(obj, field) for obj in getattr(hotel, key).all()]
 

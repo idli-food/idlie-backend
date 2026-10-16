@@ -48,6 +48,7 @@ urlpatterns = [
     path("<int:hotel_id>/review/", CreateHotelReviewView.as_view(), name="create-hotel-review"),
     path("admin/login/", admin_views.AdminLoginView.as_view(), name="admin-login"),
     path("admin/hotels/", admin_views.AdminHotelListView.as_view(), name="admin-hotel-list"),
+    path("admin/hotels/from-link/", admin_views.AdminHotelFromLinkView.as_view(), name="admin-hotel-from-link"),
     path("admin/hotels/<int:pk>/", admin_views.AdminHotelDetailView.as_view(), name="admin-hotel-detail"),
     path("admin/hotels/<int:hotel_id>/menus/", admin_views.AdminHotelMenuListView.as_view(), name="admin-hotel-menus"),
     path("admin/hotels/<int:hotel_id>/menus/import/", admin_views.AdminHotelMenuImportView.as_view(), name="admin-hotel-menu-import"),

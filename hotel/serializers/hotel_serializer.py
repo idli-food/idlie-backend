@@ -1,6 +1,6 @@
 from django.utils import timezone
 from rest_framework import serializers
-from hotel.models import Hotel, HotelCuisine, HotelService, HotelFacility, HotelDish
+from hotel.models import Hotel, HotelCuisine, HotelService, HotelFacility, HotelDish, HotelSession
 from rest_framework_gis.fields import GeometryField
 from post.services import post_service
 
@@ -30,6 +30,12 @@ def get_hotel_lists(hotel):
         key: list(getattr(hotel, key).values_list(field, flat=True))
         for key, (model, field) in HOTEL_LISTS.items()
     }
+
+
+class HotelSessionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HotelSession
+        fields = ["day", "start_time", "end_time"]
 
 
 
@@ -70,6 +76,7 @@ class HotelProfileSerializer(serializers.ModelSerializer):
     services = serializers.ListField(child=serializers.CharField(max_length=100), required=False, write_only=True)
     facilities = serializers.ListField(child=serializers.CharField(max_length=100), required=False, write_only=True)
     dishes = serializers.ListField(child=serializers.CharField(max_length=150), required=False, write_only=True)
+    sessions = HotelSessionSerializer(many=True, required=False)
 
     class Meta:
         model = Hotel
@@ -83,7 +90,7 @@ class HotelProfileSerializer(serializers.ModelSerializer):
             "phone_verified",
             "price_min",
             "price_max",
-            "hours",
+            "sessions",
             "atmosphere",
             "best_for",
             "cuisines",
@@ -101,6 +108,7 @@ class HotelProfileSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         avatar = validated_data.pop("avatar", None)
         lists = pop_hotel_lists(validated_data)
+        sessions = validated_data.pop("sessions", None)
 
         if avatar is not None:
             instance.avatar = post_service.get_s3_public_url(avatar)
@@ -109,6 +117,9 @@ class HotelProfileSerializer(serializers.ModelSerializer):
             setattr(instance, attr, value)
         instance.save()
         set_hotel_lists(instance, lists)
+        if sessions is not None:
+            HotelSession.objects.filter(hotel=instance).delete()
+            HotelSession.objects.bulk_create([HotelSession(hotel=instance, **s) for s in sessions])
 
         return instance
 
@@ -121,6 +132,7 @@ class AdminHotelSerializer(serializers.ModelSerializer):
     services = serializers.ListField(child=serializers.CharField(max_length=100), required=False, write_only=True)
     facilities = serializers.ListField(child=serializers.CharField(max_length=100), required=False, write_only=True)
     dishes = serializers.ListField(child=serializers.CharField(max_length=150), required=False, write_only=True)
+    sessions = HotelSessionSerializer(many=True, required=False)
 
     class Meta:
         model = Hotel
@@ -134,6 +146,7 @@ class AdminHotelSerializer(serializers.ModelSerializer):
             "description",
             "location",
             "location_link",
+            "place_id",
             "avatar",
             "is_active",
             "phone_verified",
@@ -143,7 +156,7 @@ class AdminHotelSerializer(serializers.ModelSerializer):
             "password",
             "price_min",
             "price_max",
-            "hours",
+            "sessions",
             "atmosphere",
             "best_for",
             "cuisines",
@@ -166,18 +179,24 @@ class AdminHotelSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         password = validated_data.pop("password", None)
         lists = pop_hotel_lists(validated_data)
+        sessions = validated_data.pop("sessions", [])
         hotel = super().create(validated_data)
         if password:
             hotel.set_password(password)
             hotel.save()
         set_hotel_lists(hotel, lists)
+        HotelSession.objects.bulk_create([HotelSession(hotel=hotel, **s) for s in sessions])
         return hotel
 
     def update(self, instance, validated_data):
         password = validated_data.pop("password", None)
         lists = pop_hotel_lists(validated_data)
+        sessions = validated_data.pop("sessions", None)
         if password:
             instance.set_password(password)
         hotel = super().update(instance, validated_data)
         set_hotel_lists(hotel, lists)
+        if sessions is not None:
+            HotelSession.objects.filter(hotel=hotel).delete()
+            HotelSession.objects.bulk_create([HotelSession(hotel=hotel, **s) for s in sessions])
         return hotel
