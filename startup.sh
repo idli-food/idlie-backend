@@ -25,6 +25,6 @@ else:
 "
 
 # Load hotels from the default CSV using the existing management command.
-python manage.py load_hotels restaurants.csv
+# python manage.py load_hotels restaurants.csv
 
 exec gunicorn config.wsgi:application --bind 0.0.0.0:8000
